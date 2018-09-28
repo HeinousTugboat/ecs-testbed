@@ -1,12 +1,7 @@
-import * as Rx from 'rxjs';
 import { Subject } from 'rxjs';
-import * as ops from 'rxjs/operators';
-import { performance } from 'perf_hooks';
+import { filter } from 'rxjs/operators';
 
-// console.clear();
-console.log('');
-
-export type ComponentType<T extends Component> = new(id: number) => T;
+export type ComponentType<T extends Component> = new (id: number) => T;
 
 export class Entity {
   static nextId = 1;
@@ -46,23 +41,6 @@ export class Component {
   static removed$ = new Subject<Component>();
 
   constructor(public entity: number) { }
-
-}
-
-class PositionComponent extends Component {
-  x = 0;
-  y = 0;
-}
-
-class ColorComponent extends Component {
-  r = 0;
-  g = 0;
-  b = 0;
-}
-
-class VelocityComponent extends Component {
-  x = 0;
-  y = 0;
 }
 
 export class System {
@@ -70,45 +48,33 @@ export class System {
   static frame = 1;
   private entities = new Set<number>();
 
-  static fn = function(this: System, e: Entity, str: string | number = '') {
-    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${e.name} `, str);
-  };
-
   static tick(dT: number) {
-    // console.log(`    ...${System.frame} [${dT}]...`);
     System.list.forEach(system => system.tick(dT));
-    // console.log(`    === end ${System.frame++} ===`);
     System.frame++;
   }
 
-  constructor(public components: typeof Component[], public label: string,
-    private update: (entity: Entity, dT: number) => void = System.fn
-    ) {
+  constructor(
+    public label: string,
+    public components: typeof Component[],
+  ) {
     System.list.add(this);
 
     Component.added$.pipe(
-      ops.filter(x => components.some(y => x instanceof y)),
-      ops.filter(x => {
+      filter(x => components.some(y => x instanceof y)),
+      filter(x => {
         const e = Entity.map.get(x.entity);
         if (e === undefined) {
           return false;
         }
 
         const cs = [...e.components.keys()];
-        // console.log(cs);
         return components.map(c => c.name).every(c => cs.includes(c));
       })
-    ).subscribe(x => {
-      // console.log(`+${label}`, x.constructor.name, Entity.map.get(x.entity)!.name);
-      this.entities.add(x.entity);
-    });
+    ).subscribe(x => this.entities.add(x.entity));
 
     Component.removed$.pipe(
-      ops.filter(x => components.some(y => x instanceof y)),
-    ).subscribe(x => {
-      // console.log(`-${label}`, x.constructor.name, Entity.map.get(x.entity)!.name);
-      this.entities.delete(x.entity);
-    });
+      filter(x => components.some(y => x instanceof y)),
+    ).subscribe(x => this.entities.delete(x.entity));
   }
 
   tick(dT: number) {
@@ -118,8 +84,11 @@ export class System {
         return;
       }
       this.update(e, dT);
-      // console.log(`|${this.label}: ${dT}, ${id}, ${e.name}`);
     });
+  }
+
+  protected update(e: Entity, dT: number) {
+    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${e.name} `, dT);
   }
 }
 
