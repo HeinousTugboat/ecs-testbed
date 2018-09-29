@@ -2,7 +2,7 @@ import { Component, System, Entity } from '../ecs';
 import { Vector, invalid } from '../utils';
 
 export class RenderComponent extends Component {
-  position: Vector;
+  position: Vector = new Vector;
   visible = true;
   width = 10;
   height = 10;
@@ -12,7 +12,13 @@ export class RenderSystem extends System {
   constructor(private ctx: CanvasRenderingContext2D) {
     super('render', [RenderComponent]);
   }
+  tick(dT: number) {
+    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.fillRect(0, 0, 500, 500);
+    this.ctx.fillStyle = '#000000';
 
+    super.tick(dT);
+  }
   update(entity: Entity) {
     const render = entity.get(RenderComponent);
 
