@@ -1,8 +1,8 @@
 import { Component, System, Entity } from '../ecs';
-import { Vector, invalid } from '../utils';
+import { Vector, invalid, MutableVector } from '../utils';
 
 export class RenderComponent extends Component {
-  position: Vector = new Vector;
+  position: Vector = new MutableVector(0, 0);
   visible = true;
   width = 10;
   height = 10;

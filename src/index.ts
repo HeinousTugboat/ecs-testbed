@@ -1,36 +1,45 @@
 import { RenderSystem, RenderComponent } from './components/render';
-import { ready, invalid } from './utils';
+import { ready, invalid, MutableVector as Vector } from './utils';
 import { Entity, System } from './ecs';
+import Joe from './Joe';
 
-let Joe: Entity;
-let joeRender: RenderComponent;
+const start = performance.now();
+let last = start;
+let dT = 0;
 
 ready(() => {
+  // Page setup
   const canvas = document.getElementById('primary-canvas') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d');
   if (invalid(ctx)) {
     throw new Error('No context available on #primary-canvas!');
   }
 
+  // ECS initialization
   const renderSystem = new RenderSystem(ctx);
+  Joe.initialize();
 
-  Joe = new Entity('Joe');
-  joeRender = Joe.add(RenderComponent);
+  // Fire the first tick
+  tick(start);
 
-  joeRender.position.x = 100;
-  joeRender.position.y = 100;
-
-  tick(0);
-
+  // Debugging stuff
   const testBed = {
     canvas, ctx, renderSystem, RenderComponent, Entity, Joe
   };
   (window as any).testBed = testBed;
 });
 
-function tick(dT: number) {
-  joeRender.position.x += dT / 1000;
-  joeRender.position.y += dT / 1000;
+function tick(time: DOMHighResTimeStamp) {
+  // Update timestamps
+  dT = time - last;
+  last = time;
+
+  // Tick everything once
+  Joe.tick(dT);
   System.tick(dT);
-  requestAnimationFrame(tick);
+
+  // Only run for intended duration
+  if (time - start < 2000) {
+    requestAnimationFrame(tick);
+  }
 }
