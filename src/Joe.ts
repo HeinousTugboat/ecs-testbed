@@ -11,7 +11,10 @@ function initialize() {
 }
 
 function tick(dT: number) {
-  render!.position.add(new Vector(dT / 10, dT / 10)); // tslint:disable-line no-non-null-assertion
+  // tslint:disable no-non-null-assertion
+  render!.visible = !render!.visible;
+  render!.position.add(new Vector(dT / 10, dT / 10));
+  // tslint:enable no-non-null-assertion
 }
 
 export default {
