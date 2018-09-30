@@ -1,30 +1,22 @@
 import * as path from 'path';
-import { Configuration, optimize } from 'webpack';
+import { Configuration, optimize, Entry, RuleSetRule } from 'webpack';
 import { unlinkSync as unlink } from 'fs';
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const rxPaths = require('rxjs/_esm5/path-mapping');
+
+import baseConfig from './webpack-server.config';
 
 const config: Configuration = {
-  context: path.resolve(__dirname, 'src'),
+  ...baseConfig,
   entry: {
-    index: './index.ts',
+    ...baseConfig.entry as Entry,
     pages: './pages.ts'
   },
-  devtool: 'inline-source-map',
-  mode: 'development',
   module: {
     rules: [
+      ...baseConfig.module.rules as RuleSetRule[],
       {
-        test: /\.tsx?$/,
-        use: [{
-          loader: 'ts-loader',
-          options: {
-            configFile: path.resolve(__dirname, 'tsconfig.json')
-          }
-        }]
-      }, {
         test: /\.pug$/,
         use: [
           {
@@ -50,11 +42,6 @@ const config: Configuration = {
         ]
       }
     ]
-  },
-  resolve: {
-    extensions: ['.tsx', '.ts', '.js'],
-    modules: [path.resolve('./src'), 'node_modules'],
-    alias: rxPaths()
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),

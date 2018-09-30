@@ -17,7 +17,7 @@ const config: Configuration = {
         use: [{
           loader: 'ts-loader',
           options: {
-            configFile: path.resolve(__dirname, 'tsconfig.json')
+            configFile: path.resolve(__dirname, 'src/tsconfig.json')
           }
         }]
       }
