@@ -15,6 +15,7 @@ export function ready(cb: () => void) {
 export class Color {
   static WHITE = new Color(255, 255, 255);
   static BLACK = new Color(0, 0, 0);
+  static LIGHT_BLUE = new Color(0x99, 0xAA, 0xFF);
 
   private colors = new Uint8ClampedArray(3);
 
@@ -42,6 +43,6 @@ export class Color {
   set b(color: number) { this.colors[2] = color; }
 
   toString() {
-    return this.colors.reduce((str, color) => str += color.toString(16).padStart(2, '0'), '#');
+    return this.colors.reduce((str, color) => str += color.toString(16).padStart(2, '0'), '#').toUpperCase();
   }
 }

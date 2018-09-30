@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
-import { invalid, ready } from '../../src/utils';
+import { invalid, ready, Color } from '../../src/utils';
 
 describe('utils:', () => {
   describe('invalid()', () => {
@@ -87,6 +87,72 @@ describe('utils:', () => {
       it('does not call event listener', () => {
         ready(cbSpy);
         expect(eventListenerSpy.called).to.be.false;
+      });
+    });
+  });
+
+  describe('Color', () => {
+    let color: Color;
+
+    describe('#WHITE', () => {
+      it('returns #FFFFFF', () => {
+        color = Color.WHITE;
+        expect(color.toString()).to.equal('#FFFFFF');
+        expect(color.r).to.equal(255);
+        expect(color.g).to.equal(255);
+        expect(color.b).to.equal(255);
+      });
+    });
+
+    describe('#BLACK', () => {
+      it('returns #000000', () => {
+        color = Color.BLACK;
+        expect(color.toString()).to.equal('#000000');
+        expect(color.r).to.equal(0);
+        expect(color.g).to.equal(0);
+        expect(color.b).to.equal(0);
+      });
+    });
+
+    describe('constructor', () => {
+      it('accepts a standard hex string', () => {
+        color = new Color('#123DEF');
+
+        expect(color.toString()).to.equal('#123DEF');
+        expect(color.r).to.equal(0x12);
+        expect(color.g).to.equal(0x3D);
+        expect(color.b).to.equal(0xEF);
+      });
+
+      it('accepts standard numbers', () => {
+        color = new Color(238, 238, 238);
+
+        expect(color.toString()).to.equal('#EEEEEE');
+        expect(color.r).to.equal(0xEE);
+        expect(color.g).to.equal(0xEE);
+        expect(color.b).to.equal(0xEE);
+      });
+
+      it('automatically clamps numbers below 0 and above 255', () => {
+        color = new Color(-255, 0, 512);
+
+        expect(color.toString()).to.equal('#0000FF');
+        expect(color.r).to.equal(0);
+        expect(color.g).to.equal(0);
+        expect(color.b).to.equal(255);
+      });
+    });
+
+    describe('setters', () => {
+      it('correctly sets new colors', () => {
+        color = new Color('#99AAFF');
+
+        expect(color.toString()).to.equal('#99AAFF');
+
+        color.r = 0;
+        color.g = 0xAB;
+        color.b = 0x01;
+        expect(color.toString()).to.equal('#00AB01');
       });
     });
   });
