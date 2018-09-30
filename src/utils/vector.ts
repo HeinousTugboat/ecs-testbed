@@ -12,8 +12,8 @@ export class Vector {
   get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); }
   get magSquare() { return this.x ** 2 + this.y ** 2; }
   get normal() { return new Vector(this.x / this.magnitude, this.y / this.magnitude); }
-  get perpY() { return new Vector(-this.y, this.x); }
   get perpX() { return new Vector(this.y, -this.x); }
+  get perpY() { return new Vector(-this.y, this.x); }
 
   /* Boolean methods */
   equals(v: Vector) { return this.y === v.y && this.x === v.x; }
