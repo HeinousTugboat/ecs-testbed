@@ -18,8 +18,44 @@ describe('utils/vector:', () => {
       });
     });
 
-    describe('#distance', () => {});
-    describe('#distSquare', () => {});
+    describe('constructor', () => {
+      it('defaults to (0, 0)', () => {
+        v1 = new Vector();
+        expect(v1.x).to.equal(0);
+        expect(v1.y).to.equal(0);
+      });
+    });
+
+    describe('#distance', () => {
+      it('returns 2 for (3, 4) and (3, 2)', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(3, 2);
+        expect(Vector.distance(v1, v2)).to.equal(2);
+        expect(Vector.distance(v2, v1)).to.equal(2);
+      });
+
+      it('returns 5 for (1, 3) and (-2, -1)', () => {
+        v1 = new Vector(1, 3);
+        v2 = new Vector(-2, -1);
+        expect(Vector.distance(v1, v2)).to.equal(5);
+        expect(Vector.distance(v2, v1)).to.equal(5);
+      });
+    });
+    describe('#distSquare', () => {
+      it('returns 4 for (3, 4) and (3, 2)', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(3, 2);
+        expect(Vector.distSquare(v1, v2)).to.equal(4);
+        expect(Vector.distSquare(v2, v1)).to.equal(4);
+      });
+
+      it('returns 25 for (1, 3) and -2, -1)', () => {
+        v1 = new Vector(1, 3);
+        v2 = new Vector(-2, -1);
+        expect(Vector.distSquare(v1, v2)).to.equal(25);
+        expect(Vector.distSquare(v2, v1)).to.equal(25);
+      });
+    });
 
     describe('toString', () => {
       it('returns \'(3, 4)\' for (3, 4)', () => {
@@ -218,15 +254,43 @@ describe('utils/vector:', () => {
     });
 
     describe('rotate()', () => {
+      it('returns (-1, 1) for (1.414, 0) rotated 3*PI/4 [close to sqrt(2)]', () => {
+        v1 = new Vector(Math.sqrt(2), 0);
 
+        const result = v1.rotate(3 * Math.PI / 4);
+        expect(result.x).to.be.closeTo(-1, 0.001);
+        expect(result.y).to.be.closeTo(1, 0.001);
+      });
     });
 
     describe('project()', () => {
+      it('returns (3, 0) for (3, 4) onto (4, 0)', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(4, 0);
 
+        let result = v1.project(v2);
+        expect(result.x).to.equal(3);
+        expect(result.y).to.equal(0);
+
+        result = v2.project(v1);
+        expect(result.x).to.not.equal(3);
+        expect(result.y).to.not.equal(0);
+      });
     });
 
-    describe('rotate()', () => {
+    describe('reject()', () => {
+      it('returns (0, 4) for (3, 4) from (4, 0)', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(4, 0);
 
+        let result = v1.reject(v2);
+        expect(result.x).to.equal(0);
+        expect(result.y).to.equal(4);
+
+        result = v2.reject(v1);
+        expect(result.x).to.not.equal(0);
+        expect(result.y).to.not.equal(4);
+      });
     });
 
     describe('dot()', () => {
@@ -253,11 +317,21 @@ describe('utils/vector:', () => {
     });
 
     describe('angle()', () => {
-
+      it('returns PI/4 for (2, 2) and (2, 0)', () => {
+        v1 = new Vector(2, 2);
+        v2 = new Vector(2, 0);
+        expect(v1.angle(v2)).to.be.closeTo(Math.PI / 4, 0.001);
+        expect(v2.angle(v1)).to.be.closeTo(Math.PI / 4, 0.001);
+      });
     });
 
     describe('pangle()', () => {
-
+      it('returns -PI/4 for (2, 2) and (2, 0)', () => {
+        v1 = new Vector(2, 2);
+        v2 = new Vector(2, 0);
+        expect(v1.pangle(v2)).to.be.closeTo(-Math.PI / 4, 0.001);
+        expect(v2.pangle(v1)).to.be.closeTo(Math.PI / 4, 0.001);
+      });
     });
   });
 
@@ -327,15 +401,18 @@ describe('utils/vector:', () => {
     });
 
     describe('rotate', () => {
+      it('changes(1.414, 0) to (-1, 1) when rotated 3*PI/4 [close to sqrt(2)]', () => {
+        v1 = new MutableVector(Math.sqrt(2), 0);
 
+        v1.rotate(3 * Math.PI / 4);
+        expect(v1.x).to.be.closeTo(-1, 0.001);
+        expect(v1.y).to.be.closeTo(1, 0.001);
+        expect(mutateSpy.called).to.be.true;
+        expect(mutateSpy.calledWith(3 * Math.PI / 4, Vector.prototype.rotate)).to.be.true;
+      });
     });
 
-    describe('project', () => {
-
-    });
-
-    describe('reject', () => {
-
-    });
+    xdescribe('project', () => {});
+    xdescribe('reject', () => {});
   });
 });
