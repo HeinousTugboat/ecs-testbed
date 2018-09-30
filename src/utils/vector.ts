@@ -2,6 +2,7 @@ export class Vector {
   static zero = new Vector(0, 0);
   static distance(a: Vector, b: Vector) { return a.subtract(b).magnitude; }
   static distSquare(a: Vector, b: Vector) { return a.subtract(b).magSquare; }
+  static lerp(a: Vector, b: Vector, t: number) { return new Vector(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y)); }
 
   constructor()
   constructor(x: number, y: number)

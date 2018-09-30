@@ -18,14 +18,6 @@ describe('utils/vector:', () => {
       });
     });
 
-    describe('constructor', () => {
-      it('defaults to (0, 0)', () => {
-        v1 = new Vector();
-        expect(v1.x).to.equal(0);
-        expect(v1.y).to.equal(0);
-      });
-    });
-
     describe('#distance', () => {
       it('returns 2 for (3, 4) and (3, 2)', () => {
         v1 = new Vector(3, 4);
@@ -41,6 +33,7 @@ describe('utils/vector:', () => {
         expect(Vector.distance(v2, v1)).to.equal(5);
       });
     });
+
     describe('#distSquare', () => {
       it('returns 4 for (3, 4) and (3, 2)', () => {
         v1 = new Vector(3, 4);
@@ -54,6 +47,25 @@ describe('utils/vector:', () => {
         v2 = new Vector(-2, -1);
         expect(Vector.distSquare(v1, v2)).to.equal(25);
         expect(Vector.distSquare(v2, v1)).to.equal(25);
+      });
+    });
+
+    describe('#lerp', () => {
+      it('returns (3, 2.5) for (3, 4) to (3, 2) at 0.75t', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(3, 2);
+
+        const result = Vector.lerp(v1, v2, 0.75);
+        expect(result.x).to.equal(3);
+        expect(result.y).to.be.closeTo(2.5, 0.001);
+      });
+    });
+
+    describe('constructor', () => {
+      it('defaults to (0, 0)', () => {
+        v1 = new Vector();
+        expect(v1.x).to.equal(0);
+        expect(v1.y).to.equal(0);
       });
     });
 
