@@ -1,11 +1,11 @@
 import * as path from 'path';
-import { Configuration, optimize, Entry, RuleSetRule } from 'webpack';
-import { unlinkSync as unlink } from 'fs';
+import { Configuration, Entry, RuleSetRule } from 'webpack';
+import { unlink } from 'fs';
 
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
-import baseConfig from './webpack-server.config';
+import baseConfig from './webpack-base.config';
 
 const config: Configuration = {
   ...baseConfig,
@@ -13,6 +13,7 @@ const config: Configuration = {
     ...baseConfig.entry as Entry,
     pages: './pages.ts'
   },
+  mode: 'production',
   module: {
     rules: [
       ...baseConfig.module.rules as RuleSetRule[],
@@ -46,13 +47,11 @@ const config: Configuration = {
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new CopyWebpackPlugin([{from: '../assets'}]),
-    new optimize.ModuleConcatenationPlugin(),
-    {
+    { // Removes the bundle that results from compiling pug.
       apply: (compiler) => {
         compiler.hooks.done.tap('AfterEmitPlugin', (stats) => {
           const dest = path.resolve(__dirname, './dist/pages.bundle.js');
-          unlink(dest);
-          console.log('build: ' + dest + ' unlinked!');
+          unlink(dest, err => console.log(err ? err : 'Build: ' + dest + ' unlinked!'));
         });
       }
     },

@@ -1,12 +1,12 @@
 import * as path from 'path';
-import { Configuration, optimize, HotModuleReplacementPlugin, NoEmitOnErrorsPlugin } from 'webpack';
+import { Configuration } from 'webpack';
 
 const rxPaths = require('rxjs/_esm5/path-mapping');
 
 const config: Configuration = {
   context: path.resolve(__dirname, 'src'),
   entry: {
-    index: './index.ts',
+    testbed: './index.ts',
   },
   devtool: 'inline-source-map',
   mode: 'development',
@@ -28,11 +28,6 @@ const config: Configuration = {
     modules: [path.resolve('./src'), 'node_modules'],
     alias: rxPaths()
   },
-  plugins: [
-    new optimize.ModuleConcatenationPlugin(),
-    new HotModuleReplacementPlugin(),
-    new NoEmitOnErrorsPlugin()
-  ],
   output: {
     filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'public'),
