@@ -17,7 +17,7 @@ export class Vector {
   get perpY() { return new Vector(-this.y, this.x); }
 
   /* Boolean methods */
-  equals(v: Vector) { return this.y === v.y && this.x === v.x; }
+  equals(v: Vector) { return Math.abs(this.y - v.y) < Number.EPSILON && Math.abs(this.x - v.x) < Number.EPSILON; }
   isOpposite(v: Vector) { return this.normal.dot(v.normal) === -1; }
   isParallel(v: Vector) { return this.normal.equals(v.normal); }
   isPerpendicular(v: Vector) { return this.dot(v) === 0; }

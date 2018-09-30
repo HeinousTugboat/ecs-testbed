@@ -141,6 +141,13 @@ describe('utils/vector:', () => {
         expect(v2.equals(v1)).to.be.true;
       });
 
+      it('returns true for (0.2+0.1, 0.2+0.1) and (0.3, 0.3)', () => {
+        v1 = new Vector(0.2 + 0.1, 0.2 + 0.1);
+        v2 = new Vector(0.3, 0.3);
+        expect(v1.equals(v2)).to.be.true;
+        expect(v2.equals(v1)).to.be.true;
+      });
+
       it('returns false for (3, 5) and (5, 3)', () => {
         v1 = new Vector(3, 5);
         v2 = new Vector(5, 3);
