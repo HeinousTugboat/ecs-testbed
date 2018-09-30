@@ -11,7 +11,7 @@ const config: Configuration = {
   ...baseConfig,
   entry: {
     ...baseConfig.entry as Entry,
-    pages: './pages.ts'
+    pages: '../pages.ts'
   },
   mode: 'production',
   module: {
