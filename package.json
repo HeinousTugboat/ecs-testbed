@@ -4,9 +4,29 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nyc mocha",
+    "test:vsc": "nyc mocha -R tap test/**/*.ts || @echo off",
     "start": "ts-node server.ts",
-    "build": "TS_NODE_PROJECT=\"tsconfig-webpack-config.json\" webpack"
+    "build": "webpack"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      "tsx"
+    ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "**/*.d.ts"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true,
+    "all": true
   },
   "author": "HeinousTugboat <admin@heinous.industries>",
   "license": "ISC",
