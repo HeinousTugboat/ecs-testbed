@@ -19,34 +19,36 @@ export class System {
     System.list.add(this);
 
     Component.added$.pipe(
-      filter(x => components.some(y => x instanceof y)),
-      filter(x => {
-        const e = Entity.map.get(x.entity);
-        if (e === undefined) {
+      filter(component => components.some(componentType => component instanceof componentType)),
+      filter(component => {
+        const entity = Entity.map.get(component.entity);
+        if (entity === undefined) {
           return false;
         }
 
-        const cs = [...e.components.keys()];
-        return components.map(c => c.name).every(c => cs.includes(c));
+        const entityComponents = [...entity.components.keys()];
+        return components
+          .map(systemComponent => systemComponent.name)
+          .every(systemComponent => entityComponents.includes(systemComponent));
       })
-    ).subscribe(x => this.entities.add(x.entity));
+    ).subscribe(component => this.entities.add(component.entity));
 
     Component.removed$.pipe(
-      filter(x => components.some(y => x instanceof y)),
-    ).subscribe(x => this.entities.delete(x.entity));
+      filter(component => components.some(componentType => component instanceof componentType)),
+    ).subscribe(component => this.entities.delete(component.entity));
   }
 
   tick(dT: number) {
     this.entities.forEach(id => {
-      const e = Entity.map.get(id);
-      if (e === undefined) {
+      const entity = Entity.map.get(id);
+      if (entity === undefined) {
         return;
       }
-      this.update(e, dT);
+      this.update(entity, dT);
     });
   }
 
-  protected update(e: Entity, dT: number) {
-    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${e.name} `, dT);
+  protected update(entity: Entity, dT: number) {
+    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${entity.name} `, dT);
   }
 }
