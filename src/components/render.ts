@@ -1,11 +1,14 @@
 import { Component, System, Entity } from '../ecs';
-import { Vector, invalid, MutableVector } from '../utils';
+import { invalid, MutableVector as Vector, Color } from '../utils';
+
+
 
 export class RenderComponent extends Component {
-  position: Vector = new MutableVector(0, 0);
+  position: Vector = new Vector(0, 0);
   visible = true;
   width = 10;
   height = 10;
+  color: Color = Color.BLACK;
 }
 
 export class RenderSystem extends System {
@@ -13,9 +16,9 @@ export class RenderSystem extends System {
     super('render', [RenderComponent]);
   }
   tick(dT: number) {
-    this.ctx.fillStyle = '#FFFFFF';
+    this.ctx.fillStyle = Color.WHITE.toString();
     this.ctx.fillRect(0, 0, 500, 500);
-    this.ctx.fillStyle = '#000000';
+    this.ctx.fillStyle = Color.BLACK.toString();
 
     super.tick(dT);
   }
@@ -26,6 +29,7 @@ export class RenderSystem extends System {
 
     const {position: p, width: w, height: h} = render;
 
+    this.ctx.fillStyle = render.color.toString();
     this.ctx.fillRect(p.x - w / 2, p.y - w / 2, w, h);
   }
 }

@@ -8,8 +8,10 @@
 
 ## Todo:
 
+- [x] Add color component/system
+   * Added to Render component
+   * Added `Color` util class.
 - [ ] Finish up `utils/vector.ts` testing
 - [ ] Add tests for `utils/line.ts`
 - [ ] Add movement component/system
-- [ ] Add color component/system
 - [ ] Add proper canvas initialization logic
