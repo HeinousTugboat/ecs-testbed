@@ -1,6 +1,6 @@
 import { Entity } from './ecs';
 import { RenderComponent } from './components/render';
-import { MutableVector, Vector, Color } from './utils';
+import { MutableVector, Vector, Color, clamp } from './utils';
 import { VelocityComponent } from './components/velocity';
 
 export class JoeBox {
@@ -23,16 +23,18 @@ export class JoeBox {
     // tslint:disable no-non-null-assertion
     // this.render!.visible = !this.render!.visible;
     this.velocity!.velocity.add(this.velocity!.acceleration.scale(dT / 1000));
-    this.render!.position.add(this.velocity!.velocity.toVector().scale(dT / 1000));
+    this.render!.position.add(this.velocity!.velocity.scale(0.999).toVector().scale(dT / 1000));
 
-    if (this.render!.position.x >= 795 || this.render!.position.x <= 5) {
-      const normal = new Vector(495 - this.render!.position.x, 0).normal;
-      this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal)));
+    if (this.render!.position.x > 790 || this.render!.position.x < 10) {
+      const normal = new Vector(790 - this.render!.position.x, 0).normal;
+      this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal))).scale(1.1);
+      this.render!.position.x = clamp(this.render!.position.x, 10, 790);
     }
 
-    if (this.render!.position.y >= 595 || this.render!.position.y <= 5) {
-      const normal = new Vector(0, 595 - this.render!.position.y).normal;
-      this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal)));
+    if (this.render!.position.y > 590 || this.render!.position.y < 10) {
+      const normal = new Vector(0, 590 - this.render!.position.y).normal;
+      this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal))).scale(1.1);
+      this.render!.position.y = clamp(this.render!.position.y, 10, 590);
     }
     // tslint:enable no-non-null-assertion
   }

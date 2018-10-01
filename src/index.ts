@@ -1,5 +1,5 @@
 import { RenderSystem, RenderComponent } from './components/render';
-import { ready, invalid, MutableVector as Vector } from './utils';
+import { ready, MutableVector as Vector, Color } from './utils';
 import { Entity, System } from './ecs';
 import { JoeBox } from './Joe';
 import { CanvasManager } from './canvas';
@@ -15,9 +15,10 @@ ready(() => {
 
   // ECS initialization
   const renderSystem = new RenderSystem(canvasManager);
-  for (let i = 0; i < 2500; ++i) {
+  for (let i = 0; i < 1500; ++i) {
     const joe = new JoeBox();
-    joe.initialize(new Vector(250, 250));
+    const n = Math.floor(Math.random() * 17) * 16;
+    joe.initialize(new Vector(250, 250), new Color(n, n, n));
     Joe.push(joe);
   }
 

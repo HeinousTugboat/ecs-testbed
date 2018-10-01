@@ -12,6 +12,10 @@ export function ready(cb: () => void) {
   }
 }
 
+export function clamp(n: number, min: number, max: number): number {
+  return Math.min(Math.max(n, min), max);
+}
+
 export class Color {
   static WHITE = new Color(255, 255, 255);
   static BLACK = new Color(0, 0, 0);
