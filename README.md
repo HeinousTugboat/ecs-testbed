@@ -13,6 +13,9 @@
    * Added `Color` util class
    * Added `Color` tests
 - [x] Finish up `utils/vector.ts` testing
-- [ ] Add movement component/system
+- [x] Add movement component/system
+   * Added Velocity component
+   * Update Joe(s) to properly utilize Velocity component
 - [ ] Add proper canvas initialization logic
+   * Added CanvasManager ahead of adding resize listeners and proper Canvas management
 - [ ] Add tests for `utils/line.ts`
