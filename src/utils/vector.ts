@@ -60,6 +60,8 @@ export class MutableVector extends Vector {
   scale(n: number) { return this.mutate(n, super.scale); }
   rotate(th: number) { return this.mutate(th, super.rotate); }
 
+  toVector(): Vector { return new Vector(this.x, this.y); }
+
   // I'm not sure these make sense for a mutable vector.
   // project(v: Vector) { return this.mutate(v, super.project); }
   // reject(v: Vector) { return this.mutate(v, super.reject); }
