@@ -1,24 +1,22 @@
 import { Component, System, Entity } from '../ecs';
-import { invalid, MutableVector as Vector, Color } from '../utils';
+import { invalid, MutableVector as MVector, Vector, Color } from '../utils';
+import { CanvasManager } from '../canvas';
 
 
 
 export class RenderComponent extends Component {
-  position: Vector = new Vector(0, 0);
+  position: MVector = new MVector(0, 0);
+  size: Vector = new Vector(10, 10);
   visible = true;
-  width = 10;
-  height = 10;
   color: Color = Color.BLACK;
 }
 
 export class RenderSystem extends System {
-  constructor(private ctx: CanvasRenderingContext2D) {
+  constructor(private canvas: CanvasManager) {
     super('render', [RenderComponent]);
   }
   tick(dT: number) {
-    this.ctx.fillStyle = Color.WHITE.toString();
-    this.ctx.fillRect(0, 0, 500, 500);
-    this.ctx.fillStyle = Color.BLACK.toString();
+    this.canvas.clear();
 
     super.tick(dT);
   }
@@ -26,10 +24,10 @@ export class RenderSystem extends System {
     const render = entity.get(RenderComponent);
 
     if (invalid(render) || !render.visible) { return; }
-
-    const {position: p, width: w, height: h} = render;
-
-    this.ctx.fillStyle = render.color.toString();
-    this.ctx.fillRect(p.x - w / 2, p.y - w / 2, w, h);
+    this.canvas.rect(
+      render.size.scale(-0.5).add(render.position),
+      render.size,
+      render.color.toString()
+    );
   }
 }
