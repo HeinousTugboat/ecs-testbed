@@ -19,3 +19,9 @@
 - [ ] Add proper canvas initialization logic
    * Added CanvasManager ahead of adding resize listeners and proper Canvas management
 - [ ] Add tests for `utils/line.ts`
+
+
+https://beta.observablehq.com/@heinoustugboat/boids-experimental-notebook
+https://beta.observablehq.com/d/4e56eda0cf78edb3
+https://web.archive.org/web/20180301172604/http://devmag.org.za/2009/08/12/vector-fundamentals/
+https://web.archive.org/web/20171019104517/http://devmag.org.za/2009/08/25/basic-vector-recipes/
