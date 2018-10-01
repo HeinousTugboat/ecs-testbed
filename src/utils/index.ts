@@ -18,6 +18,7 @@ export class Color {
   static LIGHT_BLUE = new Color(0x99, 0xAA, 0xFF);
 
   private colors = new Uint8ClampedArray(3);
+  private str = '';
 
   constructor(rgb: string)
   constructor(r: number, g: number, b: number)
@@ -32,17 +33,22 @@ export class Color {
       this.colors[1] = g || 0;
       this.colors[2] = b || 0;
     }
+    this.updateString();
   }
 
   get r() { return this.colors[0]; }
   get g() { return this.colors[1]; }
   get b() { return this.colors[2]; }
 
-  set r(color: number) { this.colors[0] = color; }
-  set g(color: number) { this.colors[1] = color; }
-  set b(color: number) { this.colors[2] = color; }
+  set r(color: number) { this.colors[0] = color; this.updateString(); }
+  set g(color: number) { this.colors[1] = color; this.updateString(); }
+  set b(color: number) { this.colors[2] = color; this.updateString(); }
+
+  private updateString() {
+    this.str = this.colors.reduce((str, color) => str += color.toString(16).padStart(2, '0'), '#').toUpperCase();
+  }
 
   toString() {
-    return this.colors.reduce((str, color) => str += color.toString(16).padStart(2, '0'), '#').toUpperCase();
+    return this.str;
   }
 }
