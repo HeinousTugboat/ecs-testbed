@@ -5,9 +5,11 @@ import { JoeBox } from './Joe';
 import { CanvasManager } from './canvas';
 
 const start = performance.now();
+const Joe: JoeBox[] = [];
+
 let last = start;
 let dT = 0;
-const Joe: JoeBox[] = [];
+let tickRes = 0;
 
 ready(() => {
   // Page setup
@@ -15,10 +17,12 @@ ready(() => {
 
   // ECS initialization
   const renderSystem = new RenderSystem(canvasManager);
-  for (let i = 0; i < 1500; ++i) {
+
+  for (let i = 0; i < 300; ++i) {
     const joe = new JoeBox();
-    const n = Math.floor(Math.random() * 17) * 16;
-    joe.initialize(new Vector(250, 250), new Color(n, n, n));
+    // const n = Math.floor(Math.random() * 17) * 16;
+    // joe.initialize(new Vector(250, 250), new Color(n, n, n));
+    joe.initialize(new Vector(200, 200), Color.BLACK);
     Joe.push(joe);
   }
 
@@ -37,9 +41,13 @@ function tick(time: DOMHighResTimeStamp) {
   dT = time - last;
   last = time;
 
-  // Tick everything once
-  Joe.forEach(joe => joe.tick(dT));
-  System.tick(dT);
+  // Tick everything until delta below 20ms
+  do {
+    tickRes = dT > 100 ? 100 : dT;
+    Joe.forEach(joe => joe.tick(tickRes));
+    System.tick(tickRes);
+    dT -= 100;
+  } while (dT > 0);
 
   // Only run for intended duration
   // if (time - start < 20000) {
