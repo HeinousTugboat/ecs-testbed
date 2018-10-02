@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 
-import { invalid, ready, Color } from '../../src/utils';
+import { invalid, ready, Color, clamp } from '../../src/utils';
 
 describe('utils:', () => {
   describe('invalid()', () => {
@@ -88,6 +88,24 @@ describe('utils:', () => {
         ready(cbSpy);
         expect(eventListenerSpy.called).to.be.false;
       });
+    });
+  });
+
+  describe('clamp()', () => {
+    it('returns n if a <= n <= b', () => {
+      expect(clamp(5, 0, 10)).to.equal(5);
+    });
+
+    it('returns a if n <= a <= b', () => {
+      expect(clamp(0, 5, 10)).to.equal(5);
+    });
+
+    it('returns b if a <= b <= n', () => {
+      expect(clamp(10, 0, 5)).to.equal(5);
+    });
+
+    it('returns n if a == n == b', () => {
+      expect(clamp(3, 3, 3)).to.equal(3);
     });
   });
 
