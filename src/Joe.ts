@@ -3,8 +3,9 @@ import { RenderComponent } from './components/render';
 import { MutableVector, Vector, Color, clamp } from './utils';
 import { VelocityComponent } from './components/velocity';
 
-export class JoeBox {
+let normal: Vector;
 
+export class JoeBox {
   private Joe = new Entity('Joe');
   private render: RenderComponent | undefined;
   private velocity: VelocityComponent | undefined;
@@ -26,13 +27,13 @@ export class JoeBox {
     this.render!.position.add(this.velocity!.velocity.scale(0.999).toVector().scale(dT / 1000));
 
     if (this.render!.position.x > 790 || this.render!.position.x < 10) {
-      const normal = new Vector(790 - this.render!.position.x, 0).normal;
+      normal = new Vector(790 - this.render!.position.x, 0).normal;
       this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal))).scale(1.1);
       this.render!.position.x = clamp(this.render!.position.x, 10, 790);
     }
 
     if (this.render!.position.y > 590 || this.render!.position.y < 10) {
-      const normal = new Vector(0, 590 - this.render!.position.y).normal;
+      normal = new Vector(0, 590 - this.render!.position.y).normal;
       this.velocity!.velocity.subtract(normal.scale(2 * this.velocity!.velocity.dot(normal))).scale(1.1);
       this.render!.position.y = clamp(this.render!.position.y, 10, 590);
     }
