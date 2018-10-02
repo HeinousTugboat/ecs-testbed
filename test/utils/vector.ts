@@ -61,6 +61,33 @@ describe('utils/vector:', () => {
       });
     });
 
+    describe('#isVector', () => {
+      it('returns true for {x: 1, y: 2}', () => {
+        const obj = {x: 1, y: 2};
+        expect(Vector.isVector(obj)).to.be.true;
+      });
+
+      it('returns false for {x: \'foo\', y: \'bar\'}', () => {
+        const obj = {x: 'foo', y: 'bar'};
+        expect(Vector.isVector(obj)).to.be.false;
+      });
+
+      it('returns false for {key: \'Some value\', otherKey: [1, 2, 3]}', () => {
+        const obj = {key: 'Some value', otherKey: [1, 2, 3]};
+        expect(Vector.isVector(obj)).to.be.false;
+      });
+    });
+
+    describe('#copy', () => {
+      it('creates an identical copy of the vector passed in', () => {
+        v1 = new Vector(4, 5);
+        v2 = Vector.copy(v1);
+
+        expect(v1).to.not.equal(v2);
+        expect(v1).to.deep.equal(v2);
+      });
+    });
+
     describe('constructor', () => {
       it('defaults to (0, 0)', () => {
         v1 = new Vector();
@@ -312,6 +339,64 @@ describe('utils/vector:', () => {
       });
     });
 
+    describe('copy()', () => {
+      it('creates a new vector', () => {
+        v1 = new Vector(3, 4);
+        v2 = v1.copy();
+
+        expect(v1).to.deep.equal(v2);
+        expect(v1).to.not.equal(v2);
+      });
+    });
+
+    describe('clamp()', () => {
+      it('returns (3, 4) for (3, 4) called with (0, 0) and (5, 5)', () => {
+        v1 = new Vector(3, 4);
+        v2 = new Vector(5, 5);
+
+        const result = v1.clamp(Vector.zero, v2);
+        expect(result.x).to.equal(3);
+        expect(result.y).to.equal(4);
+        expect(result).to.deep.equal(v1);
+        expect(result).to.not.equal(v1);
+      });
+
+      it('returns (0, 2) for (-2, 4) called with (0, 0) and (2, 2)', () => {
+        v1 = new Vector(-2, 4);
+        v2 = new Vector(2, 2);
+
+        const result = v1.clamp(Vector.zero, v2);
+        expect(result.x).to.equal(0);
+        expect(result.y).to.equal(2);
+      });
+    });
+
+    describe('clampMag()', () => {
+      it('returns (3, 4) for (3, 4) called with 0 and 6', () => {
+        v1 = new Vector(3, 4);
+        v2 = v1.clampMag(0, 6);
+        expect(v2.x).to.be.closeTo(3, 0.001);
+        expect(v2.y).to.be.closeTo(4, 0.001);
+        expect(v2.magnitude).to.not.be.above(6);
+      });
+
+      it('returns (3, 4) for (6, 8) called with 0 and 5', () => {
+        v1 = new Vector(6, 8);
+        v2 = v1.clampMag(0, 5);
+        expect(v2.x).to.be.closeTo(3, 0.001);
+        expect(v2.y).to.be.closeTo(4, 0.001);
+        expect(v2.magnitude).to.not.be.above(5);
+      });
+
+      it('returns (6, 8) for (3, 4) called with 10 and 20', () => {
+        v1 = new Vector(3, 4);
+        v2 = v1.clampMag(10, 20);
+        expect(v2.x).to.be.closeTo(6, 0.001);
+        expect(v2.y).to.be.closeTo(8, 0.001);
+        expect(v2.magnitude).to.not.be.below(10);
+      });
+    });
+
     describe('dot()', () => {
       it('returns 39 for (3, 4) . (5, 6)', () => {
         v1 = new Vector(3, 4);
@@ -371,7 +456,7 @@ describe('utils/vector:', () => {
       mutateSpy.restore();
     });
 
-    describe('add', () => {
+    describe('add()', () => {
       it('changes (3, 4) to (5,4) when (2, 0) added', () => {
         v1 = new MutableVector(3, 4);
         v2 = new Vector(2, 0);
@@ -389,7 +474,7 @@ describe('utils/vector:', () => {
       });
     });
 
-    describe('subtract', () => {
+    describe('subtract()', () => {
       it('changes (3, 4) to (3, 1) when (0, 3) subtracted', () => {
         v1 = new MutableVector(3, 4);
         v2 = new Vector(0, 3);
@@ -407,7 +492,7 @@ describe('utils/vector:', () => {
       });
     });
 
-    describe('scale', () => {
+    describe('scale()', () => {
       it('changes (3, 4) to (1.5, 2) when scaled by 0.5', () => {
         v1 = new MutableVector(3, 4);
 
@@ -419,7 +504,7 @@ describe('utils/vector:', () => {
       });
     });
 
-    describe('rotate', () => {
+    describe('rotate()', () => {
       it('changes(1.414, 0) to (-1, 1) when rotated 3*PI/4 [close to sqrt(2)]', () => {
         v1 = new MutableVector(Math.sqrt(2), 0);
 
@@ -428,6 +513,27 @@ describe('utils/vector:', () => {
         expect(v1.y).to.be.closeTo(1, 0.001);
         expect(mutateSpy.called).to.be.true;
         expect(mutateSpy.calledWith(3 * Math.PI / 4, Vector.prototype.rotate)).to.be.true;
+      });
+    });
+
+    describe('copy()', () => {
+      it('creates a new MutableVector', () => {
+        v1 = new MutableVector(3, 4);
+        v2 = v1.copy();
+        expect(v2 instanceof MutableVector).to.be.true;
+        expect(v2).to.deep.equal(v1);
+        expect(v2).to.not.equal(v1);
+      });
+    });
+
+    describe('toVector()', () => {
+      it('creates a new Vector', () => {
+        v1 = new MutableVector(3, 4);
+        v2 = v1.toVector();
+        expect(v2 instanceof MutableVector).to.be.false;
+        expect(v2 instanceof Vector).to.be.true;
+        expect(v2).to.deep.equal(v1);
+        expect(v2).to.not.equal(v1);
       });
     });
 

@@ -1,12 +1,15 @@
+import { clamp } from '.';
+
 export class Vector {
   static zero = new Vector(0, 0);
+
   static distance(a: Vector, b: Vector) { return a.subtract(b).magnitude; }
   static distSquare(a: Vector, b: Vector) { return a.subtract(b).magSquare; }
   static lerp(a: Vector, b: Vector, t: number) { return new Vector(a.x + t * (b.x - a.x), a.y + t * (b.y - a.y)); }
+  static isVector(v: any): v is Vector { return !isNaN(parseFloat(v.x)) && !isNaN(parseFloat(v.y)); }
+  static copy(v: Vector) { return new Vector(v.x, v.y); }
 
-  constructor()
-  constructor(x: number, y: number)
-  constructor(public readonly x = 0, public readonly y = 0) { }
+  constructor(public readonly x: number = 0, public readonly y: number = 0) { }
   toString() { return `(${this.x}, ${this.y})`; }
 
   /* Properties of this vector */
@@ -31,6 +34,16 @@ export class Vector {
 
   project(v: Vector) { return v.scale(this.dot(v) / v.magSquare); }
   reject(v: Vector) { return v.perpY.scale(Math.abs(this.perpY.dot(v) / v.magSquare)); }
+
+  copy() { return new Vector(this.x, this.y); }
+
+  clamp(min: Vector, max: Vector) {
+    return new Vector(clamp(this.x, min.x, max.x), clamp(this.y, min.y, max.y));
+  }
+
+  clampMag(min: number, max: number) {
+    return this.normal.scale(clamp(this.magnitude, min, max));
+  }
 
   /* number methods */
   dot(v: Vector) { return this.x * v.x + this.y * v.y; }
@@ -60,6 +73,7 @@ export class MutableVector extends Vector {
   scale(n: number) { return this.mutate(n, super.scale); }
   rotate(th: number) { return this.mutate(th, super.rotate); }
 
+  copy(): MutableVector { return new MutableVector(this.x, this.y); }
   toVector(): Vector { return new Vector(this.x, this.y); }
 
   // I'm not sure these make sense for a mutable vector.
