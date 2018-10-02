@@ -2,10 +2,14 @@ import { Component } from './component';
 import { filter } from 'rxjs/operators';
 import { Entity } from './entity';
 
+
+let en: Entity | undefined;
+let enComponents: string[];
+
 export class System {
   static list = new Set<System>();
   static frame = 1;
-  private entities = new Set<number>();
+  protected entities = new Set<number>();
 
   static tick(dT: number) {
     System.list.forEach(system => system.tick(dT));
@@ -21,15 +25,15 @@ export class System {
     Component.added$.pipe(
       filter(component => components.some(componentType => component instanceof componentType)),
       filter(component => {
-        const entity = Entity.map.get(component.entity);
-        if (entity === undefined) {
+        en = Entity.map.get(component.entity);
+        if (en === undefined) {
           return false;
         }
 
-        const entityComponents = [...entity.components.keys()];
+        enComponents = [...en.components.keys()];
         return components
           .map(systemComponent => systemComponent.name)
-          .every(systemComponent => entityComponents.includes(systemComponent));
+          .every(systemComponent => enComponents.includes(systemComponent));
       })
     ).subscribe(component => this.entities.add(component.entity));
 
@@ -40,11 +44,11 @@ export class System {
 
   tick(dT: number) {
     this.entities.forEach(id => {
-      const entity = Entity.map.get(id);
-      if (entity === undefined) {
+      en = Entity.map.get(id);
+      if (en === undefined) {
         return;
       }
-      this.update(entity, dT);
+      this.update(en, dT);
     });
   }
 
