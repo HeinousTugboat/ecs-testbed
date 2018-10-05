@@ -46,6 +46,6 @@ export class RenderSystem extends System {
     velocity = entity.get(VelocityComponent);
 
     if (invalid(render) || !render.visible || invalid(velocity)) { return; }
-    this.canvas.line(Color.LIGHT_BLUE, render.position, render.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
+    this.canvas.line(Color.LIGHT_BLUE, render.position, render.position.toVector().add(velocity.velocity.toVector().scale(10)));
   }
 }
