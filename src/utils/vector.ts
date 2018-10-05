@@ -15,7 +15,7 @@ export class Vector {
   /* Properties of this vector */
   get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); }
   get magSquare() { return this.x ** 2 + this.y ** 2; }
-  get normal() { return new Vector(this.x / this.magnitude, this.y / this.magnitude); }
+  get normal() { return new Vector(this.x / this.magnitude || 0, this.y / this.magnitude || 0); }
   get perpX() { return new Vector(this.y, -this.x); }
   get perpY() { return new Vector(-this.y, this.x); }
 
