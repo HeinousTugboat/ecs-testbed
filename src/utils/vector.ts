@@ -77,6 +77,20 @@ export class MutableVector extends Vector {
   copy(): MutableVector { return new MutableVector(this.x, this.y); }
   toVector(): Vector { return new Vector(this.x, this.y); }
 
+  normalize(): MutableVector {
+    const n = this.normal;
+    this.x = n.x;
+    this.y = n.y;
+    return this;
+  }
+
+  clampMag(min: number, max: number): MutableVector {
+    const c = super.clampMag.call(this, min, max);
+    this.x = c.x;
+    this.y = c.y;
+    return this;
+  }
+
   // I'm not sure these make sense for a mutable vector.
   // project(v: Vector) { return this.mutate(v, super.project); }
   // reject(v: Vector) { return this.mutate(v, super.reject); }
