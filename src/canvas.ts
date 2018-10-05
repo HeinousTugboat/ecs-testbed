@@ -3,9 +3,10 @@ import { invalid, Vector, Color, MutableVector } from './utils';
 export type CanvasFillStyle = string | CanvasGradient | CanvasPattern;
 
 export class CanvasManager {
-  private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private size: MutableVector;
+  private strokeBuffer: Map<Color, Path2D> = new Map<Color, Path2D>();
+  private fillBuffer: Map<Color, Path2D> = new Map<Color, Path2D>();
 
   constructor(canvasId: string, private baseStyle: CanvasFillStyle = Color.WHITE.toString()) {
     const canvas = document.getElementById(canvasId);
@@ -18,7 +19,6 @@ export class CanvasManager {
       throw new Error(`Canvas '#${canvasId}' not canvas element!`);
     }
 
-    this.canvas = canvas;
     this.size = new MutableVector(canvas.width, canvas.height);
 
     const ctx = canvas.getContext('2d');
@@ -27,55 +27,66 @@ export class CanvasManager {
       throw new Error(`Context for '#${canvasId}' null or undefined!`);
     }
     this.ctx = ctx;
+    this.ctx.lineWidth = 2;
   }
 
-  clear() {
-    this.ctx.clearRect(0, 0, this.size.x, this.size.y);
+  dot(color: Color, center: Vector, size: Vector) {
+    let path = this.fillBuffer.get(color);
+    if (invalid(path)) {
+      path = new Path2D;
+      this.fillBuffer.set(color, path);
+    }
+
+    path.moveTo(center.x, center.y);
+    path.arc(center.x, center.y, size.magnitude, 0, 2 * Math.PI);
   }
 
-  dot(center: Vector, size: Vector) {
-    this.ctx.moveTo(center.x, center.y);
-    this.ctx.arc(center.x, center.y, size.magnitude, 0, 2 * Math.PI);
+  line(color: Color, start: Vector, end: Vector) {
+    let path = this.strokeBuffer.get(color);
+    if (invalid(path)) {
+      path = new Path2D;
+      this.strokeBuffer.set(color, path);
+    }
+
+    path.moveTo(start.x, start.y);
+    path.lineTo(end.x, end.y);
   }
 
-  fill(style: CanvasFillStyle) {
-    this.setStyles();
-    this.ctx.fillStyle = style;
-    this.ctx.fill();
+  rect(color: Color, start: Vector, size: Vector) {
+    let path = this.fillBuffer.get(color);
+    if (invalid(path)) {
+      path = new Path2D;
+      this.fillBuffer.set(color, path);
+    }
+
+    path.rect(start.x, start.y, size.x, size.y);
   }
 
-  stroke(style: CanvasFillStyle, width: number = 1) {
-    this.setStyles();
-    this.ctx.strokeStyle = style;
-    this.ctx.lineWidth = width;
-    this.ctx.stroke();
-  }
+  render() {
+    this.ctx.save();
 
-  line(start: Vector, end: Vector) {
-    this.ctx.moveTo(start.x, start.y);
-    this.ctx.lineTo(end.x, end.y);
-  }
+    for (const [color, path] of this.strokeBuffer) {
+      this.ctx.strokeStyle = color.toString();
+      this.ctx.stroke(path);
+    }
 
-  rect(start: Vector, size: Vector, style: CanvasFillStyle) {
-    this.ctx.fillStyle = style;
-    this.ctx.fillRect(start.x, start.y, size.x, size.y);
-    // this.ctx.fillStyle = this.baseStyle;
-  }
+    for (const [color, path] of this.fillBuffer) {
+      this.ctx.fillStyle = color.toString();
+      this.ctx.fill(path);
+    }
 
-  setStyles() {
-    this.ctx.fillStyle = this.baseStyle;
-    this.ctx.strokeStyle = this.baseStyle;
-    this.ctx.lineWidth = 0;
-  }
-
-  startPath() {
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, 0);
-    this.setStyles();
+    this.ctx.restore();
   }
 
   tick() {
-    this.clear();
-    this.startPath();
+    for (const [color] of this.strokeBuffer) {
+      this.strokeBuffer.set(color, new Path2D);
+    }
+
+    for (const [color] of this.fillBuffer) {
+      this.fillBuffer.set(color, new Path2D);
+    }
+
+    this.ctx.clearRect(0, 0, this.size.x, this.size.y);
   }
 }

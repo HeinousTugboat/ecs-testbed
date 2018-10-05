@@ -5,7 +5,7 @@ import { VelocityComponent } from './velocity';
 
 export class RenderComponent extends Component {
   position: MVector = new MVector(0, 0);
-  size: Vector = new Vector(1.5, 1.5);
+  size: Vector = new Vector(2, 2);
   visible = true;
   color: Color = Color.BLACK;
 }
@@ -19,20 +19,8 @@ export class RenderSystem extends System {
     super('render', [RenderComponent]);
   }
   tick(dT: number) {
-    this.canvas.clear();
+    this.canvas.tick();
     // super.tick(dT);
-
-    this.canvas.startPath();
-    this.entities.forEach(id => {
-      en = Entity.map.get(id);
-      if (en === undefined) {
-        return;
-      }
-      this.drawVelocity(en);
-    });
-
-    this.canvas.stroke(Color.LIGHT_BLUE.toString());
-    this.canvas.startPath();
 
     this.entities.forEach(id => {
       en = Entity.map.get(id);
@@ -40,15 +28,17 @@ export class RenderSystem extends System {
         return;
       }
       this.drawBody(en);
+      this.drawVelocity(en);
     });
-    this.canvas.fill(Color.BLACK.toString());
+
+    this.canvas.render();
   }
 
   drawBody(entity: Entity) {
     render = entity.get(RenderComponent);
 
     if (invalid(render) || !render.visible) { return; }
-    this.canvas.dot(render.position, render.size);
+    this.canvas.dot(render.color, render.position, render.size);
   }
 
   drawVelocity(entity: Entity) {
@@ -56,6 +46,6 @@ export class RenderSystem extends System {
     velocity = entity.get(VelocityComponent);
 
     if (invalid(render) || !render.visible || invalid(velocity)) { return; }
-    this.canvas.line(render.position, render.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
+    this.canvas.line(Color.LIGHT_BLUE, render.position, render.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
   }
 }
