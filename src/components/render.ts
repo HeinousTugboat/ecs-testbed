@@ -24,7 +24,7 @@ export class RenderSystem extends System {
 
     this.entities.forEach(id => {
       en = Entity.map.get(id);
-      if (en === undefined) {
+      if (invalid(en)) {
         return;
       }
       this.drawBody(en);
