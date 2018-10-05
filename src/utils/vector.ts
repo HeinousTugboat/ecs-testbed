@@ -24,6 +24,7 @@ export class Vector {
   isOpposite(v: Vector) { return this.normal.dot(v.normal) === -1; }
   isParallel(v: Vector) { return this.normal.equals(v.normal); }
   isPerpendicular(v: Vector) { return this.dot(v) === 0; }
+  isWithin(min: Vector, max: Vector) { return this.x >= min.x && this.x <= max.x && this.y >= min.y && this.y <= max.y; }
 
   /* Vector methods */
   add(v: Vector) { return new Vector(this.x + v.x, this.y + v.y); }

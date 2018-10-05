@@ -1,4 +1,5 @@
 export * from './vector';
+export * from './line';
 
 export function invalid<T>(o: T | undefined | null): o is undefined | null {
   return o === undefined || o === null;
@@ -20,6 +21,9 @@ export class Color {
   static WHITE = new Color(255, 255, 255);
   static BLACK = new Color(0, 0, 0);
   static LIGHT_BLUE = new Color(0x99, 0xAA, 0xFF);
+  static GREEN = new Color(0x00, 0xFF, 0x00);
+  static BLUE = new Color(0x00, 0x00, 0xFF);
+  static RED = new Color(0xFF, 0x00, 0x00);
 
   private colors = new Uint8ClampedArray(3);
   private str = '';
