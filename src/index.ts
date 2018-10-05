@@ -1,5 +1,5 @@
 import { RenderSystem, RenderComponent } from './components/render';
-import { ready, MutableVector as Vector, Color } from './utils';
+import { ready, Vector, MutableVector, Color, Line } from './utils';
 import { Entity, System } from './ecs';
 import { JoeBox } from './Joe';
 import { CanvasManager } from './canvas';
@@ -22,7 +22,7 @@ ready(() => {
     const joe = new JoeBox();
     // const n = Math.floor(Math.random() * 17) * 16;
     // joe.initialize(new Vector(250, 250), new Color(n, n, n));
-    joe.initialize(new Vector(200, 200), Color.BLACK);
+    joe.initialize(new MutableVector(200, 200), Color.BLACK);
     Joe.push(joe);
   }
 
@@ -31,7 +31,7 @@ ready(() => {
 
   // Debugging stuff
   const testBed = {
-    canvasManager, renderSystem, RenderComponent, Entity, Joe
+    canvasManager, renderSystem, RenderComponent, Entity, Joe, Vector, Line
   };
   (window as any).testBed = testBed;
 });
