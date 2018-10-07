@@ -69,10 +69,39 @@ export class MutableVector extends Vector {
     return this;
   }
 
-  add(v: Vector) { return this.mutate(v, super.add); }
-  subtract(v: Vector) { return this.mutate(v, super.subtract); }
-  scale(n: number) { return this.mutate(n, super.scale); }
+  // add(v: Vector) { return this.mutate(v, super.add); }
+  add(v: Vector) {
+    this.x = this.x + v.x;
+    this.y = this.y + v.y;
+    return this;
+  }
+  // subtract(v: Vector) { return this.mutate(v, super.subtract); }
+  subtract(v: Vector) {
+    this.x = this.x - v.x;
+    this.y = this.y - v.y;
+    return this;
+  }
+
+  // scale(n: number) { return this.mutate(n, super.scale); }
+  scale(n: number) {
+    this.x = this.x * n;
+    this.y = this.y * n;
+    return this;
+  }
+
   rotate(th: number) { return this.mutate(th, super.rotate); }
+
+  setV(v: Vector): this {
+    this.x = v.x;
+    this.y = v.y;
+    return this;
+  }
+
+  set(x: number, y: number): this {
+    this.x = x;
+    this.y = y;
+    return this;
+  }
 
   copy(): MutableVector { return new MutableVector(this.x, this.y); }
   toVector(): Vector { return new Vector(this.x, this.y); }

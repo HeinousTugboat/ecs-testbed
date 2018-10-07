@@ -1,10 +1,35 @@
 import { Component, System, Entity } from '../ecs';
 import { RenderComponent } from './render';
-import { Vector, MutableVector as MVector, invalid } from '../utils';
+import { MutableVector as MVector, invalid } from '../utils';
 import { VelocityComponent } from './velocity';
 
 const width = 800;
 const height = 600;
+let boid: BoidComponent;
+let velocity: VelocityComponent;
+let render: RenderComponent;
+const steer: MVector = new MVector(0, 0);
+const alignSum: MVector = new MVector(0, 0);
+const cohesionSum: MVector = new MVector(0, 0);
+let otherEntity: Boid | undefined;
+let otherVelocity: VelocityComponent;
+let otherRender: RenderComponent;
+const diff: MVector = new MVector(0, 0);
+let dist: number;
+let count: number;
+
+export class Boid extends Entity {
+  boid: BoidComponent;
+  render: RenderComponent;
+  velocity: VelocityComponent;
+
+  constructor() {
+    super('boid');
+    this.boid = this.add(BoidComponent);
+    this.render = this.add(RenderComponent);
+    this.velocity = this.add(VelocityComponent);
+  }
+}
 
 export class BoidComponent extends Component {
   separation: MVector = new MVector(0, 0);
@@ -26,34 +51,35 @@ export class BoidSystem extends System {
   constructor() {
     super('boid', [BoidComponent, RenderComponent, VelocityComponent]);
   }
-  update(entity: Entity, dT: number) {
-    const boid = entity.get(BoidComponent);
-    const velocity = entity.get(VelocityComponent);
-    const render = entity.get(RenderComponent);
+  update(entity: Boid, dT: number) {
+    boid = entity.boid;
+    velocity = entity.velocity;
+    render = entity.render;
 
-    if (invalid(boid) || invalid(velocity) || invalid(render)) {
-      return;
-    }
+    // if (invalid(boid) || invalid(velocity) || invalid(render)) {
+    //   return;
+    // }
 
-    const steer = new MVector(0, 0);
-    const alignSum = new MVector(0, 0);
-    const cohesionSum = new MVector(0, 0);
-    let count = 0;
+    steer.set(0, 0);
+    alignSum.set(0, 0);
+    cohesionSum.set(0, 0);
+    count = 0;
 
-    this.entities.forEach(id => {
-      const en = Entity.map.get(id);
-      if (invalid(en)) {
+    const processEntity = (id: number) => {
+      otherEntity = Entity.map.get(id) as Boid;
+
+      if (invalid(otherEntity)) {
         return;
       }
 
-      const otherRender = en.get(RenderComponent);
-      const otherVelocity = en.get(VelocityComponent);
+      otherRender = otherEntity.render;
+      otherVelocity = otherEntity.velocity;
 
-      if (invalid(otherRender) || invalid(otherVelocity)) {
-        return;
-      }
-      const diff = render.position.toVector().subtract(otherRender.position);
-      const dist = diff.magSquare;
+      // if (invalid(otherRender) || invalid(otherVelocity)) {
+      //   return;
+      // }
+      diff.setV(render.position).subtract(otherRender.position);
+      dist = diff.magSquare;
 
       if (dist > 0 && dist < this.desiredSeparation) {
         steer.add(diff.normal.scale(1 / Math.sqrt(dist)));
@@ -63,7 +89,9 @@ export class BoidSystem extends System {
         count++;
       }
 
-    });
+    };
+
+    this.entities.forEach(processEntity);
 
     if (count > 0) {
       steer.scale(1 / count);

@@ -1,13 +1,13 @@
-import { RenderSystem, RenderComponent } from './components/render';
-import { ready, Vector, MutableVector, Color, Line } from './utils';
-import { Entity, System } from './ecs';
-import { JoeBox } from './Joe';
+import { RenderSystem } from './components/render';
+import { ready } from './utils';
+import { System } from './ecs';
+// import { JoeBox } from './Joe';
 import { CanvasManager } from './canvas';
-import { BoidComponent, BoidSystem } from './components/boid';
-import { VelocityComponent } from './components/velocity';
+import { BoidSystem } from './components/boid';
+import { Boid } from './components/boid';
 
 const start = performance.now();
-const Joe: JoeBox[] = [];
+// const Joe: JoeBox[] = [];
 
 let last = start;
 let dT = 0;
@@ -21,22 +21,21 @@ ready(() => {
   const boidSystem = new BoidSystem();
   const renderSystem = new RenderSystem(canvasManager);
 
-  const n = 200;
+  const n = 700;
   const div = Math.sqrt(n);
   const width = 800;
   const height = 600;
 
   for (let i = 0; i < n; ++i) {
-    const boid = new Entity('boid');
-    const boidComponent = boid.add(BoidComponent);
-    const renderComponent = boid.add(RenderComponent);
+    const boid = new Boid();
+    const renderComponent = boid.render;
     renderComponent.position.x = i % div * width / div;
     renderComponent.position.y = Math.floor(i / div) * height / div;
-    const velocityComponent = boid.add(VelocityComponent);
+    const velocityComponent = boid.velocity;
     const speed = Math.random() * 2 * Math.PI;
     velocityComponent.velocity.x = Math.cos(speed);
     velocityComponent.velocity.y = Math.sin(speed);
-    console.log(boid);
+    // console.log(boid);
   }
 
   // for (let i = 0; i < 300; ++i) {
@@ -51,10 +50,10 @@ ready(() => {
   tick(start);
 
   // Debugging stuff
-  const testBed = {
-    canvasManager, boidSystem, renderSystem, RenderComponent, Entity, Joe, Vector, Line
-  };
-  (window as any).testBed = testBed;
+  // const testBed = {
+  //   canvasManager, boidSystem, renderSystem, RenderComponent, Entity, Joe, Vector, Line
+  // };
+  // (window as any).testBed = testBed;
 });
 
 function tick(time: DOMHighResTimeStamp) {

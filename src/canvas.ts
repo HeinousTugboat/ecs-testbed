@@ -2,6 +2,9 @@ import { invalid, Vector, Color, MutableVector } from './utils';
 
 export type CanvasFillStyle = string | CanvasGradient | CanvasPattern;
 
+let path: Path2D | undefined;
+let color: Color;
+
 export class CanvasManager {
   private ctx: CanvasRenderingContext2D;
   private size: MutableVector;
@@ -30,33 +33,33 @@ export class CanvasManager {
     this.ctx.lineWidth = 2;
   }
 
-  dot(color: Color, center: Vector, size: Vector) {
-    let path = this.fillBuffer.get(color);
+  dot(dotColor: Color, center: Vector, size: Vector) {
+    path = this.fillBuffer.get(dotColor);
     if (invalid(path)) {
       path = new Path2D;
-      this.fillBuffer.set(color, path);
+      this.fillBuffer.set(dotColor, path);
     }
 
     path.moveTo(center.x, center.y);
     path.arc(center.x, center.y, size.magnitude, 0, 2 * Math.PI);
   }
 
-  line(color: Color, start: Vector, end: Vector) {
-    let path = this.strokeBuffer.get(color);
+  line(lineColor: Color, start: Vector, end: Vector) {
+    path = this.strokeBuffer.get(lineColor);
     if (invalid(path)) {
       path = new Path2D;
-      this.strokeBuffer.set(color, path);
+      this.strokeBuffer.set(lineColor, path);
     }
 
     path.moveTo(start.x, start.y);
     path.lineTo(end.x, end.y);
   }
 
-  rect(color: Color, start: Vector, size: Vector) {
-    let path = this.fillBuffer.get(color);
+  rect(rectColor: Color, start: Vector, size: Vector) {
+    path = this.fillBuffer.get(rectColor);
     if (invalid(path)) {
       path = new Path2D;
-      this.fillBuffer.set(color, path);
+      this.fillBuffer.set(rectColor, path);
     }
 
     path.rect(start.x, start.y, size.x, size.y);
@@ -65,12 +68,12 @@ export class CanvasManager {
   render() {
     this.ctx.save();
 
-    for (const [color, path] of this.strokeBuffer) {
+    for ([color, path] of this.strokeBuffer) {
       this.ctx.strokeStyle = color.toString();
       this.ctx.stroke(path);
     }
 
-    for (const [color, path] of this.fillBuffer) {
+    for ([color, path] of this.fillBuffer) {
       this.ctx.fillStyle = color.toString();
       this.ctx.fill(path);
     }
@@ -79,11 +82,11 @@ export class CanvasManager {
   }
 
   tick() {
-    for (const [color] of this.strokeBuffer) {
+    for ([color] of this.strokeBuffer) {
       this.strokeBuffer.set(color, new Path2D);
     }
 
-    for (const [color] of this.fillBuffer) {
+    for ([color] of this.fillBuffer) {
       this.fillBuffer.set(color, new Path2D);
     }
 
