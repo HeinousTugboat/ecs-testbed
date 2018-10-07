@@ -1,14 +1,13 @@
-import { RenderSystem } from './components/render';
-import { ready } from './utils';
-import { System } from './ecs';
-// import { JoeBox } from './Joe';
+import { RenderSystem, RenderComponent } from './components/render';
+import { ready, Vector, Color } from './utils';
+import { System, Entity } from './ecs';
 import { CanvasManager } from './canvas';
 import { BoidSystem } from './components/boid';
 import { Boid } from './components/boid';
+import { VelocitySystem } from './components/velocity';
+import { PositionComponent } from './components/position';
 
 const start = performance.now();
-// const Joe: JoeBox[] = [];
-
 let last = start;
 let dT = 0;
 let tickRes = 0;
@@ -16,44 +15,34 @@ let tickRes = 0;
 ready(() => {
   // Page setup
   const canvasManager = new CanvasManager('primary-canvas');
-
-  // ECS initialization
-  const boidSystem = new BoidSystem();
-  const renderSystem = new RenderSystem(canvasManager);
-
-  const n = 700;
-  const div = Math.sqrt(n);
   const width = 800;
   const height = 600;
 
+  // ECS initialization
+  const boidSystem = new BoidSystem();
+  const velocitySystem = new VelocitySystem(new Vector(0, 0), new Vector(width, height));
+  const renderSystem = new RenderSystem(canvasManager);
+
+  // Load the Boids!
+  const n = 300;
+  const div = Math.sqrt(n);
+
   for (let i = 0; i < n; ++i) {
     const boid = new Boid();
-    const renderComponent = boid.render;
-    renderComponent.position.x = i % div * width / div;
-    renderComponent.position.y = Math.floor(i / div) * height / div;
+    const positionComponent = boid.position;
+
+    // This evenly distributes our little critters across the entire canvas
+    positionComponent.position.x = i % div * width / div;
+    positionComponent.position.y = Math.floor(i / div) * height / div;
     const velocityComponent = boid.velocity;
     const speed = Math.random() * 2 * Math.PI;
     velocityComponent.velocity.x = Math.cos(speed);
     velocityComponent.velocity.y = Math.sin(speed);
-    // console.log(boid);
+    velocityComponent.velocity.scale(60);
   }
-
-  // for (let i = 0; i < 300; ++i) {
-  //   const joe = new JoeBox();
-  //   // const n = Math.floor(Math.random() * 17) * 16;
-  //   // joe.initialize(new Vector(250, 250), new Color(n, n, n));
-  //   joe.initialize(new MutableVector(200, 200), Color.BLACK);
-  //   Joe.push(joe);
-  // }
 
   // Fire the first tick
   tick(start);
-
-  // Debugging stuff
-  // const testBed = {
-  //   canvasManager, boidSystem, renderSystem, RenderComponent, Entity, Joe, Vector, Line
-  // };
-  // (window as any).testBed = testBed;
 });
 
 function tick(time: DOMHighResTimeStamp) {
@@ -63,14 +52,13 @@ function tick(time: DOMHighResTimeStamp) {
 
   // Tick everything until delta below 20ms
   do {
+    if (dT > 100) {
+      console.log('Slow tick!', dT);
+    }
     tickRes = dT > 100 ? 100 : dT;
-    // Joe.forEach(joe => joe.tick(tickRes));
     System.tick(tickRes);
     dT -= 100;
   } while (dT > 0);
 
-  // Only run for intended duration
-  // if (time - start < 20000) {
-    requestAnimationFrame(tick);
-  // }
+  requestAnimationFrame(tick);
 }

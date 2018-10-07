@@ -2,32 +2,35 @@ import { Component, System, Entity } from '../ecs';
 import { RenderComponent } from './render';
 import { MutableVector as MVector, invalid } from '../utils';
 import { VelocityComponent } from './velocity';
+import { PositionComponent } from './position';
 
 const width = 800;
 const height = 600;
 let boid: BoidComponent;
 let velocity: VelocityComponent;
-let render: RenderComponent;
-const steer: MVector = new MVector(0, 0);
-const alignSum: MVector = new MVector(0, 0);
-const cohesionSum: MVector = new MVector(0, 0);
+let position: PositionComponent;
+let steer: MVector = new MVector(0, 0);
+let alignSum: MVector = new MVector(0, 0);
+let cohesionSum: MVector = new MVector(0, 0);
 let otherEntity: Boid | undefined;
 let otherVelocity: VelocityComponent;
-let otherRender: RenderComponent;
+let otherPosition: PositionComponent;
 const diff: MVector = new MVector(0, 0);
 let dist: number;
 let count: number;
 
 export class Boid extends Entity {
   boid: BoidComponent;
-  render: RenderComponent;
+  position: PositionComponent;
   velocity: VelocityComponent;
 
   constructor() {
     super('boid');
     this.boid = this.add(BoidComponent);
-    this.render = this.add(RenderComponent);
+    this.position = this.add(PositionComponent);
     this.velocity = this.add(VelocityComponent);
+
+    this.add(RenderComponent);
   }
 }
 
@@ -35,18 +38,16 @@ export class BoidComponent extends Component {
   separation: MVector = new MVector(0, 0);
   alignment: MVector = new MVector(0, 0);
   cohesion: MVector = new MVector(0, 0);
-  r = 2.0;
-  maxSpeed = 2;
-  maxForce = 0.0005;
+  maxForce = 10;
 }
 
 export class BoidSystem extends System {
-  desiredSeparation = 20 ** 2;
+  desiredSeparation = 25 ** 2;
   neighborDistance = 50 ** 2;
 
   separationScale = 1.5;
-  alignmentScale = 1.0;
-  cohesionScale = 1.0;
+  alignmentScale = 0.7;
+  cohesionScale = 1;
 
   constructor() {
     super('boid', [BoidComponent, RenderComponent, VelocityComponent]);
@@ -54,15 +55,15 @@ export class BoidSystem extends System {
   update(entity: Boid, dT: number) {
     boid = entity.boid;
     velocity = entity.velocity;
-    render = entity.render;
+    position = entity.position;
 
-    // if (invalid(boid) || invalid(velocity) || invalid(render)) {
-    //   return;
-    // }
+    if (invalid(boid) || invalid(velocity) || invalid(position)) {
+      return;
+    }
 
-    steer.set(0, 0);
-    alignSum.set(0, 0);
-    cohesionSum.set(0, 0);
+    steer = boid.separation.set(0, 0);
+    alignSum = boid.alignment.set(0, 0);
+    cohesionSum = boid.cohesion.set(0, 0);
     count = 0;
 
     const processEntity = (id: number) => {
@@ -72,19 +73,20 @@ export class BoidSystem extends System {
         return;
       }
 
-      otherRender = otherEntity.render;
+      otherPosition = otherEntity.position;
       otherVelocity = otherEntity.velocity;
 
-      // if (invalid(otherRender) || invalid(otherVelocity)) {
-      //   return;
-      // }
-      diff.setV(render.position).subtract(otherRender.position);
+      if (invalid(otherPosition) || invalid(otherVelocity)) {
+        return;
+      }
+
+      diff.setV(position.position).subtract(otherPosition.position);
       dist = diff.magSquare;
 
       if (dist > 0 && dist < this.desiredSeparation) {
         steer.add(diff.normal.scale(1 / Math.sqrt(dist)));
         alignSum.add(otherVelocity.velocity);
-        cohesionSum.add(otherRender.position);
+        cohesionSum.add(otherPosition.position);
 
         count++;
       }
@@ -97,14 +99,14 @@ export class BoidSystem extends System {
       steer.scale(1 / count);
       alignSum.scale(1 / count)
         .normalize()
-        .scale(boid.maxSpeed)
+        .scale(velocity.maxSpeed)
         .subtract(velocity.velocity)
-        .clampMag(0, boid.maxSpeed);
+        .clampMag(0, velocity.maxSpeed);
       cohesionSum
         .scale(1 / count)
-        .subtract(render.position)
+        .subtract(position.position)
         .normalize()
-        .scale(boid.maxSpeed)
+        .scale(velocity.maxSpeed)
         .subtract(velocity.velocity)
         .clampMag(0, boid.maxForce);
     } else {
@@ -114,7 +116,7 @@ export class BoidSystem extends System {
     if (steer.magSquare > 0) {
       steer
         .normalize()
-        .scale(boid.maxSpeed)
+        .scale(velocity.maxSpeed)
         .subtract(velocity.velocity)
         .clampMag(0, boid.maxForce);
     }
@@ -127,14 +129,5 @@ export class BoidSystem extends System {
       .add(steer)
       .add(alignSum)
       .add(cohesionSum);
-    velocity.velocity.add(velocity.acceleration).clampMag(0, boid.maxSpeed);
-    render.position.add(velocity.velocity);
-    velocity.acceleration.scale(0);
-
-    if (render.position.x < -boid.r) { render.position.x = width + boid.r; }
-    if (render.position.y < -boid.r) { render.position.y = height + boid.r; }
-    if (render.position.x > width + boid.r) { render.position.x = -boid.r; }
-    if (render.position.y > height + boid.r) { render.position.y = -boid.r; }
-
   }
 }
