@@ -1,11 +1,10 @@
-import { RenderSystem, RenderComponent } from './components/render';
-import { ready, Vector, Color } from './utils';
-import { System, Entity } from './ecs';
+import { RenderSystem } from './components/render';
+import { ready } from './utils';
+import { System } from './ecs';
 import { CanvasManager } from './canvas';
-import { BoidSystem } from './components/boid';
+import { BoidSystem, BoidClan } from './components/boid';
 import { Boid } from './components/boid';
 import { VelocitySystem } from './components/velocity';
-import { PositionComponent } from './components/position';
 
 const start = performance.now();
 let last = start;
@@ -26,7 +25,7 @@ ready(() => {
   const div = Math.sqrt(n);
 
   for (let i = 0; i < n; ++i) {
-    const boid = new Boid();
+    const boid = new Boid(i % 2 ? BoidClan.RED : BoidClan.BLUE);
     const positionComponent = boid.position;
 
     // This evenly distributes our little critters across the entire canvas

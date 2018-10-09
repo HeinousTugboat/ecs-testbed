@@ -1,11 +1,9 @@
 import { Component, System, Entity } from '../ecs';
 import { RenderComponent } from './render';
-import { MutableVector as MVector, invalid } from '../utils';
+import { MutableVector as MVector, invalid, Color } from '../utils';
 import { VelocityComponent } from './velocity';
 import { PositionComponent } from './position';
 
-const width = 800;
-const height = 600;
 let boid: BoidComponent;
 let velocity: VelocityComponent;
 let position: PositionComponent;
@@ -13,24 +11,35 @@ let steer: MVector = new MVector(0, 0);
 let alignSum: MVector = new MVector(0, 0);
 let cohesionSum: MVector = new MVector(0, 0);
 let otherEntity: Boid | undefined;
+let otherBoid: BoidComponent;
 let otherVelocity: VelocityComponent;
 let otherPosition: PositionComponent;
 const diff: MVector = new MVector(0, 0);
 let dist: number;
 let count: number;
 
+export enum BoidClan {
+  UNAFFILIATED = '#000000',
+  RED = '#CCAA99',
+  BLUE = '#99AACC'
+}
+
 export class Boid extends Entity {
   boid: BoidComponent;
   position: PositionComponent;
   velocity: VelocityComponent;
+  render: RenderComponent;
 
-  constructor() {
+  constructor(clan: BoidClan) {
     super('boid');
     this.boid = this.add(BoidComponent);
+    this.boid.clan = clan;
+
     this.position = this.add(PositionComponent);
     this.velocity = this.add(VelocityComponent);
+    this.render = this.add(RenderComponent);
 
-    this.add(RenderComponent);
+    this.render.color = new Color(clan);
   }
 }
 
@@ -39,6 +48,7 @@ export class BoidComponent extends Component {
   alignment: MVector = new MVector(0, 0);
   cohesion: MVector = new MVector(0, 0);
   maxForce = 10;
+  clan: BoidClan = BoidClan.UNAFFILIATED;
 }
 
 export class BoidSystem extends System {
@@ -73,10 +83,15 @@ export class BoidSystem extends System {
         return;
       }
 
+      otherBoid = otherEntity.boid;
       otherPosition = otherEntity.position;
       otherVelocity = otherEntity.velocity;
 
-      if (invalid(otherPosition) || invalid(otherVelocity)) {
+      if (invalid(otherPosition) || invalid(otherVelocity) || invalid(otherBoid)) {
+        return;
+      }
+
+      if (boid.clan !== otherBoid.clan && otherBoid.clan !== BoidClan.UNAFFILIATED) {
         return;
       }
 

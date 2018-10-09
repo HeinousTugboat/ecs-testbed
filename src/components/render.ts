@@ -1,5 +1,5 @@
 import { Component, System, Entity } from '../ecs';
-import { invalid, MutableVector as MVector, Vector, Color } from '../utils';
+import { invalid, Vector, Color } from '../utils';
 import { CanvasManager } from '../canvas';
 import { VelocityComponent } from './velocity';
 import { PositionComponent } from './position';
@@ -51,7 +51,7 @@ export class RenderSystem extends System {
     velocity = entity.get(VelocityComponent);
 
     if (invalid(position) || invalid(velocity)) { return; }
-    this.canvas.line(Color.LIGHT_BLUE, position.position, position.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
+    this.canvas.line(Color.GRAY, position.position, position.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
   }
 
   drawBoid(entity: Entity) {
