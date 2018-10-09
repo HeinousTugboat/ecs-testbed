@@ -1,4 +1,7 @@
 import { invalid, Vector, Color, MutableVector } from './utils';
+import { fromEvent, interval, Observable, BehaviorSubject } from 'rxjs';
+import { throttle } from 'rxjs/operators';
+import { animationFrame } from 'rxjs/internal/scheduler/animationFrame';
 
 export type CanvasFillStyle = string | CanvasGradient | CanvasPattern;
 
@@ -6,10 +9,13 @@ let path: Path2D | undefined;
 let color: Color;
 
 export class CanvasManager {
+  private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private size: MutableVector;
   private strokeBuffer: Map<Color, Path2D> = new Map<Color, Path2D>();
   private fillBuffer: Map<Color, Path2D> = new Map<Color, Path2D>();
+  private resizeEmitter: BehaviorSubject<Vector>;
+  public resize$: Observable<Vector>;
 
   constructor(canvasId: string, private baseStyle: CanvasFillStyle = Color.WHITE.toString()) {
     const canvas = document.getElementById(canvasId);
@@ -22,6 +28,7 @@ export class CanvasManager {
       throw new Error(`Canvas '#${canvasId}' not canvas element!`);
     }
 
+    this.canvas = canvas;
     this.size = new MutableVector(canvas.width, canvas.height);
 
     const ctx = canvas.getContext('2d');
@@ -31,6 +38,29 @@ export class CanvasManager {
     }
     this.ctx = ctx;
     this.ctx.lineWidth = 2;
+    this.resizeEmitter = new BehaviorSubject(this.size.toVector());
+    this.resize$ = this.resizeEmitter.asObservable();
+
+    fromEvent<UIEvent>(window, 'resize').pipe(
+      throttle(() => interval(20, animationFrame))
+    ).subscribe(this.resize.bind(this));
+
+    this.resize();
+  }
+
+  private resize() {
+    this.canvas.height = window.innerHeight;
+    this.canvas.width = window.innerWidth;
+    this.size.set(this.canvas.width, this.canvas.height);
+    this.resizeEmitter.next(this.size);
+  }
+
+  get width(): number {
+    return this.canvas.width;
+  }
+
+  get height(): number {
+    return this.canvas.height;
   }
 
   dot(dotColor: Color, center: Vector, size: Vector) {

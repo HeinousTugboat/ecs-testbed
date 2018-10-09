@@ -1,6 +1,7 @@
 import { Component, System, Entity } from '../ecs';
 import { Vector, MutableVector, invalid, clamp } from '../utils';
 import { PositionComponent } from './position';
+import { CanvasManager } from '../canvas';
 
 export class VelocityComponent extends Component {
   velocity: MutableVector = new MutableVector(0, 0);
@@ -8,16 +9,22 @@ export class VelocityComponent extends Component {
   maxSpeed = 120;
 }
 
-const width = 800;
-const height = 600;
 const r = 5.0;
 let position: PositionComponent | undefined;
 let velocity: VelocityComponent | undefined;
 let normal: Vector;
 
 export class VelocitySystem extends System {
-  constructor(private minBoundary: Vector, private maxBoundary: Vector) {
+  private size: MutableVector;
+
+  constructor(private canvas: CanvasManager) {
     super('velocity', [PositionComponent, VelocityComponent]);
+    this.size = new MutableVector(canvas.width, canvas.height);
+    canvas.resize$.subscribe(this.resize.bind(this));
+  }
+
+  private resize(size: Vector) {
+    this.size.setV(size);
   }
 
   update(entity: Entity, dT: number) {
@@ -46,23 +53,23 @@ export class VelocitySystem extends System {
     // if (position.position.y > height + r) { position.position.y = -r; }
 
     // Bouncing borders
-    if (position.position.x > width - r || position.position.x < r) {
-      normal = new Vector(width - r - position.position.x, 0).normal;
+    if (position.position.x > this.size.x - r || position.position.x < r) {
+      normal = new Vector(this.size.x - r - position.position.x, 0).normal;
       velocity.velocity.subtract(normal.scale(2 * velocity.velocity.dot(normal))).scale(1.1);
-      position.position.x = clamp(position.position.x, r, width - r);
+      position.position.x = clamp(position.position.x, r, this.size.x - r);
 
-      if (position.position.x > width - 3 * r || position.position.x < 3 * r) {
+      if (position.position.x > this.size.x - 3 * r || position.position.x < 3 * r) {
         velocity.acceleration.add(normal.scale(velocity.maxSpeed));
       }
     }
 
-    if (position.position.y > height - r || position.position.y < r) {
-      normal = new Vector(0, height - r - position.position.y).normal;
+    if (position.position.y > this.size.y - r || position.position.y < r) {
+      normal = new Vector(0, this.size.y - r - position.position.y).normal;
       velocity.velocity.subtract(normal.scale(2 * velocity.velocity.dot(normal))).scale(1.1);
-      position.position.y = clamp(position.position.y, r, height - r);
+      position.position.y = clamp(position.position.y, r, this.size.y - r);
       velocity.acceleration.add(normal);
 
-      if (position.position.x > height - 3 * r || position.position.x < 3 * r) {
+      if (position.position.x > this.size.x - 3 * r || position.position.x < 3 * r) {
         velocity.acceleration.add(normal.scale(velocity.maxSpeed));
       }
     }

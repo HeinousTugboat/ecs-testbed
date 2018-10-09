@@ -15,12 +15,10 @@ let tickRes = 0;
 ready(() => {
   // Page setup
   const canvasManager = new CanvasManager('primary-canvas');
-  const width = 800;
-  const height = 600;
 
   // ECS initialization
   const boidSystem = new BoidSystem();
-  const velocitySystem = new VelocitySystem(new Vector(0, 0), new Vector(width, height));
+  const velocitySystem = new VelocitySystem(canvasManager);
   const renderSystem = new RenderSystem(canvasManager);
 
   // Load the Boids!
@@ -32,8 +30,8 @@ ready(() => {
     const positionComponent = boid.position;
 
     // This evenly distributes our little critters across the entire canvas
-    positionComponent.position.x = i % div * width / div;
-    positionComponent.position.y = Math.floor(i / div) * height / div;
+    positionComponent.position.x = (i + 0.5) % div * canvasManager.width / div;
+    positionComponent.position.y = (Math.floor(i / div) + 0.5) * canvasManager.height / div;
     const velocityComponent = boid.velocity;
     const speed = Math.random() * 2 * Math.PI;
     velocityComponent.velocity.x = Math.cos(speed);
