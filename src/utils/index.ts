@@ -24,6 +24,7 @@ export class Color {
   static GREEN = new Color(0x00, 0xFF, 0x00);
   static BLUE = new Color(0x00, 0x00, 0xFF);
   static RED = new Color(0xFF, 0x00, 0x00);
+  static GRAY = new Color(0x77, 0x77, 0x77);
 
   private colors = new Uint8ClampedArray(3);
   private str = '';
