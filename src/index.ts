@@ -47,14 +47,14 @@ function tick(time: DOMHighResTimeStamp) {
   dT = time - last;
   last = time;
 
-  // Tick everything until delta below 20ms
+  // Tick everything until delta below 50ms
   do {
     if (dT > 100) {
-      console.log('Slow tick!', dT);
+      dT -= 50;
     }
-    tickRes = dT > 100 ? 100 : dT;
+    tickRes = dT > 50 ? 50 : dT;
     System.tick(tickRes);
-    dT -= 100;
+    dT -= tickRes;
   } while (dT > 0);
 
   requestAnimationFrame(tick);
