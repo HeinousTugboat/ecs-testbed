@@ -19,7 +19,8 @@ let dist: number;
 let count: number;
 
 export enum BoidClan {
-  UNAFFILIATED = '#000000',
+  UNAFFILIATED = '#FF00FF',
+  SHEPHERD = '#555555',
   RED = '#CCAA99',
   BLUE = '#99AACC'
 }
@@ -30,7 +31,7 @@ export class Boid extends Entity {
   velocity: VelocityComponent;
   render: RenderComponent;
 
-  constructor(clan: BoidClan) {
+  constructor(clan: BoidClan = BoidClan.UNAFFILIATED) {
     super('boid');
     this.boid = this.add(BoidComponent);
     this.boid.clan = clan;
@@ -91,7 +92,7 @@ export class BoidSystem extends System {
         return;
       }
 
-      if (boid.clan !== otherBoid.clan && otherBoid.clan !== BoidClan.UNAFFILIATED) {
+      if (boid.clan !== otherBoid.clan && otherBoid.clan !== BoidClan.UNAFFILIATED && otherBoid.clan !== BoidClan.SHEPHERD) {
         return;
       }
 

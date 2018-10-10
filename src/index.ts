@@ -10,6 +10,8 @@ const start = performance.now();
 let last = start;
 let dT = 0;
 let tickRes = 0;
+let spawnTime = 0;
+
 
 ready(() => {
   // Page setup
@@ -21,22 +23,23 @@ ready(() => {
   const renderSystem = new RenderSystem(canvasManager);
 
   // Load the Boids!
-  const n = 300;
+  const n = 50;
   const div = Math.sqrt(n);
 
   for (let i = 0; i < n; ++i) {
-    const boid = new Boid(i % 2 ? BoidClan.RED : BoidClan.BLUE);
-    const positionComponent = boid.position;
+    const {position: {position}, velocity: {velocity, maxSpeed}} = new Boid(BoidClan.SHEPHERD);
 
     // This evenly distributes our little critters across the entire canvas
-    positionComponent.position.x = (i + 0.5) % div * canvasManager.width / div;
-    positionComponent.position.y = (Math.floor(i / div) + 0.5) * canvasManager.height / div;
-    const velocityComponent = boid.velocity;
+    position.x = (i + 0.5) % div * canvasManager.width / div;
+    position.y = (Math.floor(i / div) + 0.5) * canvasManager.height / div;
+
     const speed = Math.random() * 2 * Math.PI;
-    velocityComponent.velocity.x = Math.cos(speed);
-    velocityComponent.velocity.y = Math.sin(speed);
-    velocityComponent.velocity.scale(60);
+    velocity.x = Math.cos(speed);
+    velocity.y = Math.sin(speed);
+    velocity.scale(Math.random() * (maxSpeed - 60) + 60);
   }
+
+  spawnTime = start;
 
   // Fire the first tick
   tick(start);
@@ -46,11 +49,22 @@ function tick(time: DOMHighResTimeStamp) {
   // Update timestamps
   dT = time - last;
   last = time;
-
   // Tick everything until delta below 50ms
   do {
     if (dT > 100) {
       dT -= 50;
+    }
+
+    if (dT < 18 && time - spawnTime > 100) {
+      const boid = new Boid(Math.random() < 0.5 ? BoidClan.RED : BoidClan.BLUE);
+      const {position: {position}, velocity: {velocity, maxSpeed}} = boid;
+
+      position.set(Math.random() * innerWidth, Math.random() * innerHeight);
+      const speed = Math.random() * 2 * Math.PI;
+      velocity.set(Math.cos(speed), Math.sin(speed));
+      velocity.scale(Math.random() * (maxSpeed - 60) + 60);
+
+      spawnTime = time;
     }
     tickRes = dT > 50 ? 50 : dT;
     System.tick(tickRes);
