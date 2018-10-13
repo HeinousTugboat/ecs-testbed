@@ -21,3 +21,28 @@ FROM points p, points p2
 WHERE p.id != p2.id
 AND power(p2.x - p.x, 2) + power(p2.y - p.y, 2) < power(1, 2)
 GROUP BY p.id;
+
+
+CREATE OR REPLACE FUNCTION add_random_points (integer)
+RETURNS void as $$
+DECLARE
+	n ALIAS FOR $1;
+BEGIN
+	FOR i IN 1..n LOOP
+		INSERT INTO points(point) VALUES
+		(point(random() * 10, random() * 10));
+	END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+DELETE FROM points;
+
+DO $$ BEGIN
+	PERFORM add_random_points(500);
+END $$;
+
+SELECT p.id, count(p2), sum(p.point <-> p2.point)/count(p2)
+FROM points p, points p2
+WHERE p.id != p2.id
+AND p2.point <-> p.point < power(1, 2)
+GROUP BY p.id;
