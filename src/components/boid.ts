@@ -10,7 +10,6 @@ let position: PositionComponent;
 let steer: MVector = new MVector(0, 0);
 let alignSum: MVector = new MVector(0, 0);
 let cohesionSum: MVector = new MVector(0, 0);
-let otherEntity: Boid | undefined;
 let otherBoid: BoidComponent;
 let otherVelocity: VelocityComponent;
 let otherPosition: PositionComponent;
@@ -52,7 +51,9 @@ export class BoidComponent extends Component {
   clan: BoidClan = BoidClan.UNAFFILIATED;
 }
 
-export class BoidSystem extends System {
+export type BoidComponents = [BoidComponent, RenderComponent, VelocityComponent, PositionComponent];
+
+export class BoidSystem extends System<BoidComponents> {
   desiredSeparation = 25 ** 2;
   neighborDistance = 50 ** 2;
 
@@ -61,32 +62,18 @@ export class BoidSystem extends System {
   cohesionScale = 1;
 
   constructor() {
-    super('boid', [BoidComponent, RenderComponent, VelocityComponent]);
+    super('boid', [BoidComponent, RenderComponent, VelocityComponent, PositionComponent]);
   }
-  update(entity: Boid, dT: number) {
-    boid = entity.boid;
-    velocity = entity.velocity;
-    position = entity.position;
-
-    if (invalid(boid) || invalid(velocity) || invalid(position)) {
-      return;
-    }
+  update(components: BoidComponents, dT: number) {
+    [boid, , velocity, position] = components;
 
     steer = boid.separation.set(0, 0);
     alignSum = boid.alignment.set(0, 0);
     cohesionSum = boid.cohesion.set(0, 0);
     count = 0;
 
-    const processEntity = (id: number) => {
-      otherEntity = Entity.map.get(id) as Boid;
-
-      if (invalid(otherEntity)) {
-        return;
-      }
-
-      otherBoid = otherEntity.boid;
-      otherPosition = otherEntity.position;
-      otherVelocity = otherEntity.velocity;
+    const processEntity = (otherComponents: BoidComponents) => {
+      [otherBoid, , otherVelocity, otherPosition] = otherComponents;
 
       if (invalid(otherPosition) || invalid(otherVelocity) || invalid(otherBoid)) {
         return;

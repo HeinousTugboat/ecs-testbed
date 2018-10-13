@@ -14,7 +14,9 @@ let position: PositionComponent | undefined;
 let velocity: VelocityComponent | undefined;
 let normal: Vector;
 
-export class VelocitySystem extends System {
+export type VelocityComponents = [PositionComponent, VelocityComponent];
+
+export class VelocitySystem extends System<VelocityComponents> {
   private size: MutableVector;
 
   constructor(private canvas: CanvasManager) {
@@ -27,13 +29,8 @@ export class VelocitySystem extends System {
     this.size.setV(size);
   }
 
-  update(entity: Entity, dT: number) {
-    position = entity.get(PositionComponent);
-    velocity = entity.get(VelocityComponent);
-
-    if (invalid(position) || invalid(velocity)) {
-      return;
-    }
+  update(components: VelocityComponents, dT: number) {
+    [position, velocity] = components;
 
     velocity.velocity.add(velocity.acceleration);
     velocity.velocity.clampMag(0, velocity.maxSpeed);

@@ -17,6 +17,18 @@ export function clamp(n: number, min: number, max: number): number {
   return Math.min(Math.max(n, min), max);
 }
 
+export function guard<T, R extends T>(
+  r: (value: T) => value is R,
+  message?: string
+): (value: T) => R {
+  return value => {
+    if (r(value)) {
+      return value;
+    }
+    throw new Error(message || 'Guard rejection.');
+  };
+}
+
 export class Color {
   static WHITE = new Color(255, 255, 255);
   static BLACK = new Color(0, 0, 0);

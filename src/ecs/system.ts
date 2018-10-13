@@ -1,15 +1,16 @@
-import { Component } from './component';
-import { filter } from 'rxjs/operators';
-import { Entity } from './entity';
+import { Component, ComponentType } from './component';
+import { filter, map } from 'rxjs/operators';
+import { Entity, isEntity } from './entity';
 
 
-let en: Entity | undefined;
 let enComponents: string[];
 
-export class System {
-  static list = new Set<System>();
+export type ComponentTypes<T extends Component[]> = {[K in keyof T]: ComponentType<T[K] extends Component ? T[K] : never> };
+
+export class System<T extends Component[]> {
+  static list = new Set<System<any>>();
   static frame = 1;
-  protected entities = new Set<number>();
+  protected entities = new Set<T>();
 
   static tick(dT: number) {
     System.list.forEach(system => system.tick(dT));
@@ -18,41 +19,42 @@ export class System {
 
   constructor(
     public label: string,
-    public components: typeof Component[],
+    public components: ComponentTypes<T>,
   ) {
     System.list.add(this);
 
     Component.added$.pipe(
       filter(component => components.some(componentType => component instanceof componentType)),
-      filter(component => {
-        en = Entity.map.get(component.entity);
-        if (en === undefined) {
-          return false;
-        }
-
-        enComponents = [...en.components.keys()];
+      map(component => Entity.map.get(component.entity)),
+      filter(isEntity),
+      filter(entity => {
+        enComponents = [...entity.components.keys()];
         return components
           .map(systemComponent => systemComponent.name)
           .every(systemComponent => enComponents.includes(systemComponent));
+      }),
+      map((entity: Entity) => {
+        return components.map(componentType => entity.get(componentType)) as T;
       })
-    ).subscribe(component => this.entities.add(component.entity));
+    ).subscribe(componentArr => this.entities.add(componentArr));
 
     Component.removed$.pipe(
       filter(component => components.some(componentType => component instanceof componentType)),
-    ).subscribe(component => this.entities.delete(component.entity));
+      map(component => Entity.map.get(component.entity)),
+      filter(isEntity),
+      map((entity: Entity) => {
+        return [...this.entities.values()].filter(entityComponents => entityComponents.every(component => component.entity === entity.id));
+      })
+    ).subscribe(componentArr => this.entities.delete(componentArr[0]));
   }
 
   tick(dT: number) {
-    this.entities.forEach(id => {
-      en = Entity.map.get(id);
-      if (en === undefined) {
-        return;
-      }
-      this.update(en, dT);
+    this.entities.forEach(components => {
+      this.update(components, dT);
     });
   }
 
-  protected update(entity: Entity, dT: number) {
-    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${entity.name} `, dT);
+  protected update(components: T, dT: number) {
+    console.log(`[${System.frame.toString(10).padStart(2)}] ${this.label}: ${components} `, dT);
   }
 }

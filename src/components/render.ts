@@ -17,40 +17,39 @@ let position: PositionComponent | undefined;
 let velocity: VelocityComponent | undefined;
 let boid: BoidComponent | undefined;
 
-export class RenderSystem extends System {
+export type RenderComponents = [RenderComponent, PositionComponent];
+
+export class RenderSystem extends System<RenderComponents> {
   constructor(private canvas: CanvasManager) {
     super('render', [RenderComponent, PositionComponent]);
   }
   tick() {
     this.canvas.tick();
 
-    this.entities.forEach(id => {
-      en = Entity.map.get(id);
-      if (invalid(en)) {
-        return;
-      }
+    this.entities.forEach(components => {
 
-      this.drawBody(en);
-      this.drawVelocity(en);
+      this.drawBody(components);
+      // this.drawVelocity(components);
       // this.drawBoid(en);
     });
 
     this.canvas.render();
   }
 
-  drawBody(entity: Entity) {
-    render = entity.get(RenderComponent);
-    position = entity.get(PositionComponent);
-
-    if (invalid(render) || invalid(position) || !render.visible) { return; }
+  drawBody(components: RenderComponents) {
+    [render, position] = components;
     this.canvas.dot(render.color, position.position, render.size);
   }
 
-  drawVelocity(entity: Entity) {
-    position = entity.get(PositionComponent);
-    velocity = entity.get(VelocityComponent);
+  drawVelocity(components: RenderComponents) {
+    [, position] = components;
 
-    if (invalid(position) || invalid(velocity)) { return; }
+    en = Entity.map.get(position.entity);
+
+    if (invalid(en)) { return; }
+    velocity = en.get(VelocityComponent);
+
+    if (invalid(velocity)) { return; }
     this.canvas.line(Color.GRAY, position.position, position.position.toVector().add(velocity.velocity.toVector().scale(0.2)));
   }
 

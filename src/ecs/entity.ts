@@ -1,6 +1,10 @@
 import { Subject } from 'rxjs';
 import { ComponentType, Component } from './component';
 
+export function isEntity(e: Entity | undefined): e is Entity {
+  return isFinite((<Entity>e).id) && (<Entity>e).components !== undefined;
+}
+
 export class Entity {
   static nextId = 1;
   static added$ = new Subject<Entity>();
