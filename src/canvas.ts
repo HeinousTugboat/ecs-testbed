@@ -10,6 +10,7 @@ let color: Color;
 
 export class CanvasManager {
   private canvas: HTMLCanvasElement;
+  private count: HTMLSpanElement;
   private ctx: CanvasRenderingContext2D;
   private size: MutableVector;
   private strokeBuffer: Map<Color, Path2D> = new Map<Color, Path2D>();
@@ -19,6 +20,7 @@ export class CanvasManager {
 
   constructor(canvasId: string, private baseStyle: CanvasFillStyle = Color.WHITE.toString()) {
     const canvas = document.getElementById(canvasId);
+    const count = document.getElementById('count');
 
     if (invalid(canvas)) {
       throw new Error(`Canvas '#${canvasId}' null or undefined!`);
@@ -28,7 +30,16 @@ export class CanvasManager {
       throw new Error(`Canvas '#${canvasId}' not canvas element!`);
     }
 
+    if (invalid(count)) {
+      throw new Error(`Count element null or undefined!`);
+    }
+
+    if (!(count instanceof HTMLSpanElement)) {
+      throw new Error(`Count not span element!`);
+    }
+
     this.canvas = canvas;
+    this.count = count;
     this.size = new MutableVector(canvas.width, canvas.height);
 
     const ctx = canvas.getContext('2d');
@@ -111,7 +122,7 @@ export class CanvasManager {
     this.ctx.restore();
   }
 
-  tick() {
+  tick(count?: string) {
     for ([color] of this.strokeBuffer) {
       this.strokeBuffer.set(color, new Path2D);
     }
@@ -121,5 +132,9 @@ export class CanvasManager {
     }
 
     this.ctx.clearRect(0, 0, this.size.x, this.size.y);
+
+    if (!invalid(count)) {
+      this.count.innerHTML = count;
+    }
   }
 }

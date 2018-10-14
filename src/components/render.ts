@@ -24,7 +24,7 @@ export class RenderSystem extends System<RenderComponents> {
     super('render', [RenderComponent, PositionComponent]);
   }
   tick() {
-    this.canvas.tick();
+    this.canvas.tick(this.entities.size.toString(10));
 
     this.entities.forEach(components => {
 

@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100vh;
   width: 100vw;
   margin: 0;
@@ -7,6 +8,7 @@ html, body {
 
 body {
   background: #F0F0F0;
+  color: #0003;
   display: grid;
   overflow: hidden;
   padding: 5px;
@@ -21,6 +23,16 @@ canvas {
   z-index: -1;
 }
 
+header {
+  margin: 2em;
+}
+
 h1 {
-  color: #0003;
+  margin-bottom: 0;
+}
+
+#count {
+  color: #333;
+  font-size: 80%;
+  font-weight: bold;
 }
