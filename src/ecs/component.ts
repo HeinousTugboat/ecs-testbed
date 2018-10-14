@@ -9,23 +9,21 @@ export class Component {
   static removed$ = new Subject<Component>();
 
   constructor(public readonly entityId: number) {
-    Component.added$.next(this);
-
     const entity = Entity.map.get(this.entityId);
     if (invalid(entity)) {
       throw new Error(`Component with invalid Entity! ${this} ${entity}`);
     }
 
     entity.components.set(this.constructor.name, this);
+    Component.added$.next(this);
   }
 
   destroy() {
-    Component.removed$.next(this);
-
     const entity = Entity.map.get(this.entityId);
     if (invalid(entity)) {
       throw new Error(`Component with invalid Entity! ${this} ${entity}`);
     }
     entity.components.delete(this.constructor.name);
+    Component.removed$.next(this);
   }
 }

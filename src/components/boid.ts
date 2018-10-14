@@ -32,12 +32,12 @@ export class Boid extends Entity {
 
   constructor(clan: BoidClan = BoidClan.UNAFFILIATED) {
     super('boid');
-    this.boid = this.add(BoidComponent);
+    this.boid = new BoidComponent(this.id);
     this.boid.clan = clan;
 
-    this.position = this.add(PositionComponent);
-    this.velocity = this.add(VelocityComponent);
-    this.render = this.add(RenderComponent);
+    this.position = new PositionComponent(this.id);
+    this.velocity = new VelocityComponent(this.id);
+    this.render = new RenderComponent(this.id);
 
     this.render.color = new Color(clan);
   }
