@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs';
 import { ComponentType, Component } from './component';
+import { invalid } from '../utils';
 
 export function isEntity(e: Entity | undefined): e is Entity {
   return isFinite((<Entity>e).id) && (<Entity>e).components !== undefined;
@@ -22,18 +23,13 @@ export class Entity {
   }
 
   add<T extends Component>(component: ComponentType<T>): T {
-    const inst = new component(this.id);
-    this.components.set(component.name, inst);
-    Component.added$.next(inst);
-    return inst;
+    return new component(this.id);
   }
 
-  remove<T extends Component>(component: ComponentType<T>): T | undefined {
-    const inst = this.components.get(component.name) as T;
-    if (inst !== undefined) {
-      this.components.delete(component.name);
-      Component.removed$.next(inst);
+  remove<T extends Component>(component: ComponentType<T>): void {
+    const componentInstance = this.components.get(component.name) as T;
+    if (!invalid(componentInstance)) {
+      componentInstance.destroy();
     }
-    return inst;
   }
 }

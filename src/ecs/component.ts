@@ -8,7 +8,16 @@ export class Component {
   static added$ = new Subject<Component>();
   static removed$ = new Subject<Component>();
 
-  constructor(public entity: number) { }
+  constructor(public readonly entityId: number) {
+    Component.added$.next(this);
+
+    const entity = Entity.map.get(this.entityId);
+    if (invalid(entity)) {
+      throw new Error(`Component with invalid Entity! ${this} ${entity}`);
+    }
+
+    entity.components.set(this.constructor.name, this);
+  }
 
   destroy() {
     Component.removed$.next(this);
