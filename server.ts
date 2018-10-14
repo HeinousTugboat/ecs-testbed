@@ -35,5 +35,5 @@ app.use(bodyParser.urlencoded({
 
 app.use(express.static('public'));
 
-app.get('/', (req: Request, res: Response) => res.render('index'));
+app.get('/', (req: Request, res: Response) => res.render('testbed'));
 app.listen(3000, () => console.log('Testbed backend started on port 3000.'));

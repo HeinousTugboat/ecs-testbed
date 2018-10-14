@@ -3,4 +3,4 @@ function requireAll(requireContext: __WebpackModuleApi.RequireContext) {
 }
 const pages = requireAll(require.context('./views', true, /\.pug$/));
 
-require('./scss/index.scss');
+require('./scss/testbed.scss');
