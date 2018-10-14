@@ -34,7 +34,7 @@ const config: Configuration = {
           {
             loader: 'file-loader',
             options: {
-              name: '[name].css'
+              name: 'css/[name].css'
             }
           },
           'extract-loader',
