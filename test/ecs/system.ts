@@ -9,4 +9,14 @@ describe('ECS:', () => {
       expect(System).to.exist;
     });
   });
+
+  xdescribe('#tick', () => {
+
+  });
+  xdescribe('constructor', () => {
+
+  });
+  xdescribe('tick', () => {
+
+  });
 });

@@ -2,7 +2,8 @@ import { Component, System, Entity } from '../ecs';
 import { RenderComponent } from './render';
 import { MutableVector as MVector, invalid, Color } from '../utils';
 import { VelocityComponent } from './velocity';
-import { PositionComponent } from './position';
+import { PositionComponent, PositionSystem } from './position';
+import { GridItem } from '../utils/hash-grid';
 
 let boid: BoidComponent;
 let velocity: VelocityComponent;
@@ -10,9 +11,10 @@ let position: PositionComponent;
 let steer: MVector = new MVector(0, 0);
 let alignSum: MVector = new MVector(0, 0);
 let cohesionSum: MVector = new MVector(0, 0);
-let otherBoid: BoidComponent;
-let otherVelocity: VelocityComponent;
-let otherPosition: PositionComponent;
+let otherEntity: Entity | undefined;
+let otherBoid: BoidComponent | undefined;
+let otherVelocity: VelocityComponent | undefined;
+let otherPosition: PositionComponent | undefined;
 const diff: MVector = new MVector(0, 0);
 let dist: number;
 let count: number;
@@ -72,10 +74,24 @@ export class BoidSystem extends System<BoidComponents> {
     cohesionSum = boid.cohesion.set(0, 0);
     count = 0;
 
-    const processEntity = (otherComponents: BoidComponents) => {
-      [otherBoid, , otherVelocity, otherPosition] = otherComponents;
+    const processPosition = (gridPosition: GridItem<PositionComponent>) => {
+      otherPosition = undefined;
+      otherBoid = undefined;
+      otherVelocity = undefined;
+      otherPosition = undefined;
 
-      if (invalid(otherPosition) || invalid(otherVelocity) || invalid(otherBoid)) {
+      ({item: otherPosition} = gridPosition);
+
+      otherEntity = Entity.map.get(otherPosition.entityId);
+
+      if (invalid(otherEntity) || invalid(otherPosition)) {
+        return;
+      }
+
+      otherBoid = otherEntity.get(BoidComponent);
+      otherVelocity = otherEntity.get(VelocityComponent);
+
+      if (invalid(otherBoid) || invalid(otherVelocity)) {
         return;
       }
 
@@ -93,10 +109,10 @@ export class BoidSystem extends System<BoidComponents> {
 
         count++;
       }
-
     };
 
-    this.entities.forEach(processEntity);
+    PositionSystem.grid.getNeighbors(position.position).forEach(processPosition);
+
 
     if (count > 0) {
       steer.scale(1 / count);

@@ -35,7 +35,7 @@ export class VelocitySystem extends System<VelocityComponents> {
     velocity.velocity.add(velocity.acceleration);
     velocity.velocity.clampMag(0, velocity.maxSpeed);
     velocity.velocity.scale(0.999);
-    position.position.add(velocity.velocity.toVector().scale(dT / 1000));
+    position.add(velocity.velocity.toVector().scale(dT / 1000));
 
     velocity.acceleration.set(0, 0);
 
@@ -50,23 +50,23 @@ export class VelocitySystem extends System<VelocityComponents> {
     // if (position.position.y > height + r) { position.position.y = -r; }
 
     // Bouncing borders
-    if (position.position.x > this.size.x - r || position.position.x < r) {
-      normal = new Vector(this.size.x - r - position.position.x, 0).normal;
+    if (position.x > this.size.x - r || position.x < r) {
+      normal = new Vector(this.size.x - r - position.x, 0).normal;
       velocity.velocity.subtract(normal.scale(2 * velocity.velocity.dot(normal))).scale(1.1);
-      position.position.x = clamp(position.position.x, r, this.size.x - r);
+      position.x = clamp(position.x, r, this.size.x - r);
 
-      if (position.position.x > this.size.x - 3 * r || position.position.x < 3 * r) {
+      if (position.x > this.size.x - 3 * r || position.x < 3 * r) {
         velocity.acceleration.add(normal.scale(velocity.maxSpeed));
       }
     }
 
-    if (position.position.y > this.size.y - r || position.position.y < r) {
-      normal = new Vector(0, this.size.y - r - position.position.y).normal;
+    if (position.y > this.size.y - r || position.y < r) {
+      normal = new Vector(0, this.size.y - r - position.y).normal;
       velocity.velocity.subtract(normal.scale(2 * velocity.velocity.dot(normal))).scale(1.1);
-      position.position.y = clamp(position.position.y, r, this.size.y - r);
+      position.y = clamp(position.y, r, this.size.y - r);
       velocity.acceleration.add(normal);
 
-      if (position.position.x > this.size.x - 3 * r || position.position.x < 3 * r) {
+      if (position.x > this.size.x - 3 * r || position.x < 3 * r) {
         velocity.acceleration.add(normal.scale(velocity.maxSpeed));
       }
     }

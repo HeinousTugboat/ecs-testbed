@@ -29,7 +29,7 @@ export class RenderSystem extends System<RenderComponents> {
     this.entities.forEach(components => {
 
       this.drawBody(components);
-      // this.drawVelocity(components);
+      this.drawVelocity(components);
       // this.drawBoid(en);
     });
 

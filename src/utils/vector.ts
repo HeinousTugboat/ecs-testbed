@@ -1,6 +1,15 @@
 import { clamp } from '.';
 
-export class Vector {
+export interface Pointlike {
+  x: number;
+  y: number;
+}
+
+export function isPointlike(o: any): o is Pointlike {
+  return !isNaN(o.x) && !isNaN(o.y);
+}
+
+export class Vector implements Pointlike {
   static zero = new Vector(0, 0);
 
   static distance(a: Vector, b: Vector) { return a.subtract(b).magnitude; }

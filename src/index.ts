@@ -5,13 +5,14 @@ import { CanvasManager } from './canvas';
 import { BoidSystem, BoidClan } from './components/boid';
 import { Boid } from './components/boid';
 import { VelocitySystem } from './components/velocity';
+import { PositionSystem } from './components/position';
 
 const start = performance.now();
 let last = start;
 let dT = 0;
 let tickRes = 0;
 let spawnTime = 0;
-
+let spawning = true;
 
 ready(() => {
   // Page setup
@@ -21,6 +22,7 @@ ready(() => {
   const boidSystem = new BoidSystem();
   const velocitySystem = new VelocitySystem(canvasManager);
   const renderSystem = new RenderSystem(canvasManager);
+  const positionSystem = new PositionSystem(canvasManager, Math.sqrt(boidSystem.neighborDistance));
 
   // Load the Boids!
   const n = 50;
@@ -53,9 +55,10 @@ function tick(time: DOMHighResTimeStamp) {
   do {
     if (dT > 100) {
       dT -= 50;
+      spawning = false;
     }
 
-    if (dT < 18 && time - spawnTime > 100) {
+    if (spawning && dT < 17 && time - spawnTime > 100) {
       const boid = new Boid(Math.random() < 0.5 ? BoidClan.RED : BoidClan.BLUE);
       const {position: {position}, velocity: {velocity, maxSpeed}} = boid;
 
