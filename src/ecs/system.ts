@@ -25,7 +25,7 @@ export class System<T extends Component[]> {
 
     Component.added$.pipe(
       filter(component => components.some(componentType => component instanceof componentType)),
-      map(component => Entity.map.get(component.entity)),
+      map(component => Entity.map.get(component.entityId)),
       filter(isEntity),
       filter(entity => {
         enComponents = [...entity.components.keys()];
@@ -40,10 +40,11 @@ export class System<T extends Component[]> {
 
     Component.removed$.pipe(
       filter(component => components.some(componentType => component instanceof componentType)),
-      map(component => Entity.map.get(component.entity)),
+      map(component => Entity.map.get(component.entityId)),
       filter(isEntity),
       map((entity: Entity) => {
-        return [...this.entities.values()].filter(entityComponents => entityComponents.every(component => component.entity === entity.id));
+        return [...this.entities.values()]
+          .filter(entityComponents => entityComponents.every(component => component.entityId === entity.id));
       })
     ).subscribe(componentArr => this.entities.delete(componentArr[0]));
   }

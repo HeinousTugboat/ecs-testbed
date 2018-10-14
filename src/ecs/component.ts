@@ -13,7 +13,7 @@ export class Component {
   destroy() {
     Component.removed$.next(this);
 
-    const entity = Entity.map.get(this.entity);
+    const entity = Entity.map.get(this.entityId);
     if (invalid(entity)) {
       throw new Error(`Component with invalid Entity! ${this} ${entity}`);
     }

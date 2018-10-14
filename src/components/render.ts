@@ -44,7 +44,7 @@ export class RenderSystem extends System<RenderComponents> {
   drawVelocity(components: RenderComponents) {
     [, position] = components;
 
-    en = Entity.map.get(position.entity);
+    en = Entity.map.get(position.entityId);
 
     if (invalid(en)) { return; }
     velocity = en.get(VelocityComponent);
